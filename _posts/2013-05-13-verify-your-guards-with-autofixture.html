@@ -1,0 +1,80 @@
+---
+layout: post
+title: Verify Your Guards With AutoFixture
+date: 2013-05-13 18:56:14.000000000 +02:00
+categories:
+- AutoFixture
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+author:
+  login: admin
+  email: mads.toustrup@gmail.com
+  display_name: admin
+  first_name: ''
+  last_name: ''
+---
+<p>An important tool in leveraging loosely-coupled components is using <a href="https://en.wikipedia.org/wiki/Dependency_injection">dependency injection (DI)</a>. A common and wide-spread approach to DI is using constructor injection. Basically, when using constructor injection, all dependencies are injected as parameters through your constructors. This allows strong-typed dependency declarations. It is good practice to follow the <a href="http://xunitpatterns.com/Guard%20Assertion.html">Guard Assertion pattern</a> or Guard Clause pattern, like this:</p>
+<div id="scid:9ce6104f-a9aa-4a17-a79f-3a39532ebf7c:907ca5c8-bbfa-438e-a0e6-a4485f0728b3" class="wlWriterEditableSmartContent" style="margin: 0px; display: inline; float: none; padding: 0px;">
+<div style="border: #000080 1px solid; color: #000; font-family: 'Courier New', Courier, Monospace; font-size: 10pt;">
+<div style="background: #ddd; overflow: auto;">
+<ol style="background: #ffffff; margin: 0 0 0 2.5em; padding: 0 0 0 5px;" start="1">
+<li><span style="background: #ffffff; color: #0000ff;">public</span><span style="background: #ffffff; color: #0000ff;">void</span><span style="background: #ffffff; color: #000000;"> Service(</span><span style="background: #ffffff; color: #2b91af;">IService</span><span style="background: #ffffff; color: #000000;"> service1, </span><span style="background: #ffffff; color: #2b91af;">IService</span><span style="background: #ffffff; color: #000000;"> service2)</span></li>
+<li style="background: #f3f3f3;"><span style="background: #ffffff; color: #000000;">{</span></li>
+<li>    <span style="background: #ffffff; color: #0000ff;">if</span><span style="background: #ffffff; color: #000000;"> (service1 == </span><span style="background: #ffffff; color: #0000ff;">null</span><span style="background: #ffffff; color: #000000;">)</span></li>
+<li style="background: #f3f3f3;">    <span style="background: #ffffff; color: #000000;">{</span></li>
+<li>        <span style="background: #ffffff; color: #0000ff;">throw</span><span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">ArgumentNullException</span><span style="background: #ffffff; color: #000000;">(</span><span style="background: #ffffff; color: #a31515;">"service1"</span><span style="background: #ffffff; color: #000000;">);</span></li>
+<li style="background: #f3f3f3;">    <span style="background: #ffffff; color: #000000;">}</span></li>
+<li></li>
+<li style="background: #f3f3f3;">    <span style="background: #ffffff; color: #0000ff;">if</span><span style="background: #ffffff; color: #000000;"> (service2 == </span><span style="background: #ffffff; color: #0000ff;">null</span><span style="background: #ffffff; color: #000000;">)</span></li>
+<li>    <span style="background: #ffffff; color: #000000;">{</span></li>
+<li style="background: #f3f3f3;">        <span style="background: #ffffff; color: #0000ff;">throw</span><span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">ArgumentNullException</span><span style="background: #ffffff; color: #000000;">(</span><span style="background: #ffffff; color: #a31515;">"service2"</span><span style="background: #ffffff; color: #000000;">);</span></li>
+<li>    <span style="background: #ffffff; color: #000000;">}</span></li>
+<li style="background: #f3f3f3;"><span style="background: #ffffff; color: #000000;">}</span></li>
+</ol>
+</div>
+</div>
+</div>
+<p>These guard clauses makes sure that the injected dependencies are in a useful state.</p>
+<p>For a long time I have been testing all my guard clauses through my unit tests. I’ve been having discussions with co-workers and associates about the necessity of testing guard clauses. Their argument is that by definition the CLR will throw the ArgumentNullException, it is part of the framework. My argument is that we cannot foresee how this code will be used or refactored in the future. So, to avoid a future situation where the injected dependencies are not verified, I’ll keep testing my guard clauses. Up until now I have done this like this:</p>
+<div id="scid:9ce6104f-a9aa-4a17-a79f-3a39532ebf7c:f4df29ca-869e-44bb-9b6b-fb46fa7c6863" class="wlWriterEditableSmartContent" style="margin: 0px; display: inline; float: none; padding: 0px;">
+<div style="border: #000080 1px solid; color: #000; font-family: 'Courier New', Courier, Monospace; font-size: 10pt;">
+<div style="background: #ddd; overflow: auto;">
+<ol style="background: #ffffff; margin: 0 0 0 2.5em; padding: 0 0 0 5px;" start="1">
+<li><span style="background: #ffffff; color: #000000;">[</span><span style="background: #ffffff; color: #2b91af;">Test</span><span style="background: #ffffff; color: #000000;">]</span></li>
+<li style="background: #f3f3f3;"><span style="background: #ffffff; color: #0000ff;">public</span><span style="background: #ffffff; color: #0000ff;">void</span><span style="background: #ffffff; color: #000000;"> Service1IsNullThrowsException()</span></li>
+<li><span style="background: #ffffff; color: #000000;">{</span></li>
+<li style="background: #f3f3f3;">    <span style="background: #ffffff; color: #2b91af;">Assert</span><span style="background: #ffffff; color: #000000;">.Throws&lt;</span><span style="background: #ffffff; color: #2b91af;">ArgumentNullException</span><span style="background: #ffffff; color: #000000;">&gt;(() =&gt; </span></li>
+<li>        <span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">Service</span><span style="background: #ffffff; color: #000000;">(</span><span style="background: #ffffff; color: #0000ff;">null</span><span style="background: #ffffff; color: #000000;">, _service2Mock));</span></li>
+<li style="background: #f3f3f3;"><span style="background: #ffffff; color: #000000;">}</span></li>
+<li></li>
+<li style="background: #f3f3f3;"><span style="background: #ffffff; color: #000000;">[</span><span style="background: #ffffff; color: #2b91af;">Test</span><span style="background: #ffffff; color: #000000;">]</span></li>
+<li><span style="background: #ffffff; color: #0000ff;">public</span><span style="background: #ffffff; color: #0000ff;">void</span><span style="background: #ffffff; color: #000000;"> Service2IsNullThrowsException()</span></li>
+<li style="background: #f3f3f3;"><span style="background: #ffffff; color: #000000;">{</span></li>
+<li>    <span style="background: #ffffff; color: #2b91af;">Assert</span><span style="background: #ffffff; color: #000000;">.Throws&lt;</span><span style="background: #ffffff; color: #2b91af;">ArgumentNullException</span><span style="background: #ffffff; color: #000000;">&gt;(() =&gt; </span></li>
+<li style="background: #f3f3f3;">        <span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">Service</span><span style="background: #ffffff; color: #000000;">(_service1Mock, </span><span style="background: #ffffff; color: #0000ff;">null</span><span style="background: #ffffff; color: #000000;">));</span></li>
+<li><span style="background: #ffffff; color: #000000;">}</span></li>
+</ol>
+</div>
+</div>
+</div>
+<p>For each of our constructors and each of their parameters I used to verify whether my guard clauses are in place. This is a very tedious and trivial task. Another pain of having these tests is that they are very brittle and <em>will </em>lead to a maintenance hell. I therefore had a chat with <a href="http://blog.ploeh.dk/about.html">Mark Seemann</a> at Danish Developers Conference 2013. He made an excellent session on writing maintainable unit tests. I asked him whether he was testing his guard clauses, and how he did that. His answer was that he was testing them, but got tired of writing tests for all permutations of these scenarios. He therefore implemented this functionality into <a href="https://github.com/AutoFixture">AutoFixture</a>, or more like into an extension. AutoFixture is an important, if not the most important, tool in my TDD toolbox. It keeps surprising me with new features, and new  ways to optimize my TDD endeavors. Check out my <a href="http://madstt.dk/customizations-with-autofixture/">recent post</a> on AutoFixture.</p>
+<p>AutoFixture has this very cool and, maybe, a little overseen extension called <a href="https://nuget.org/packages/AutoFixture.Idioms">Idioms</a>. It is an extension for idiomatic unit tests, that would be unit tests that keep using common templates. I have just realized this extension, and my first discovery is the GuardClauseAssertion class. This class can be used to test all constructors and all its parameters, to verify whether there is missing a guard clause in any of these. This is how my previous test methods would be replaced using the GuardClauseAssertion class:</p>
+<div id="scid:9ce6104f-a9aa-4a17-a79f-3a39532ebf7c:57ae44e2-4982-44a4-8c45-49a6a97c67a8" class="wlWriterEditableSmartContent" style="margin: 0px; display: inline; float: none; padding: 0px;">
+<div style="border: #000080 1px solid; color: #000; font-family: 'Courier New', Courier, Monospace; font-size: 10pt;">
+<div style="background: #ddd; overflow: auto;">
+<ol style="background: #ffffff; margin: 0 0 0 2em; padding: 0 0 0 5px;" start="1">
+<li><span style="background: #ffffff; color: #0000ff;">var</span><span style="background: #ffffff; color: #000000;"> fixture = </span><span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">Fixture</span><span style="background: #ffffff; color: #000000;">();</span></li>
+<li style="background: #f3f3f3;"><span style="background: #ffffff; color: #0000ff;">var</span><span style="background: #ffffff; color: #000000;"> assertion = </span><span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">GuardClauseAssertion</span><span style="background: #ffffff; color: #000000;">(fixture);</span></li>
+<li><span style="background: #ffffff; color: #000000;">assertion.Verify(</span><span style="background: #ffffff; color: #0000ff;">typeof</span><span style="background: #ffffff; color: #000000;">(</span><span style="background: #ffffff; color: #2b91af;">Service</span><span style="background: #ffffff; color: #000000;">).GetConstructors());</span></li>
+</ol>
+</div>
+</div>
+</div>
+<p>Using reflection all constructors and all their parameters are verified to make sure that guard clauses are in place. See, my maintenance hell just vanished. Awesome!</p>
+<p>On a side-note, the Verify method will provide you with a quite detailed exception message if any constructor argument in any constructor is lacking a guard clause, like this:</p>
+<p><span style="font-family: 'Courier New';">Ploeh.AutoFixture.Idioms.GuardClauseException : An attempt was made to assign the value null to the parameter "service1" of the method ".ctor", and no Guard Clause prevented this. Are you missing a Guard Clause?</span></p>
+<p>So, no more excuses not to set up guard clauses for your dependencies.</p>

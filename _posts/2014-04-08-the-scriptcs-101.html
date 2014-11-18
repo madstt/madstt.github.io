@@ -1,0 +1,78 @@
+---
+layout: post
+title: The ScriptCs 101
+date: 2014-04-08 05:54:00.000000000 +02:00
+categories:
+- scriptcs
+tags: []
+status: publish
+type: post
+published: true
+meta: {}
+author:
+  login: admin
+  email: mads.toustrup@gmail.com
+  display_name: admin
+  first_name: ''
+  last_name: ''
+---
+<p>C# is an awesome language. In this post I’ll write about C# and scripting. To get you into the right context, I’ll kick-off with my personal language journey, just to set the scene, and then I’ll introduce ScriptCs.</p>
+<h1>Introduction</h1>
+<p>I initially came on to C# back in 2005, when C# 2.0 was the latest. Many features that we take for granted in C# 5, was not included, such as generics, static classes, private setters, iterators, etc. I came from Java, so the syntax seemed straightforward. At the same time, we used some Ruby scripts for building assemblies to different hardware platforms. In 2008 I switched court and started doing some C++ on an embedded Linux platform. Some developers did their development in Vim, but the majority used the Eclipse IDE, including me. It seemed natural coming from Visual Studio. To build the assemblies we used a home-grown build system written in Python. Since 2010, I came back to C#, and it is still my language of choice, although I’m experimenting with JavaScript.</p>
+<h2>Heavy Development Experience</h2>
+<p>Over the years it has seemed to me that even the most simple development task feels so heavy with C#. And its not the language, it’s the complete development experience. It kind of feels sad. Even for the simplest console app, we have to open Visual Studio, create a project, select project type, etc. Click, click, click. We really just want to play around with some new feature, or we might have crafted some brilliant idea and want to make a small spike. We get tired before we ever had the chance to write a line of code. Many automation tasks are solved with a small console app. We could use another editor and utilize the CSC compiler, but you’ll soon find out that it is only for basic stuff, there is some difficulties referencing dlls and such. </p>
+<p>In other scripting languages such as Ruby, Python or NodeJS, there is more lightweight options available. You can pick you favorite editor, and you’re productive. Of course, these are interpreted language, you would argue. But taste that development experience. Many of the development environments have a <a href="http://https://en.wikipedia.org/wiki/Read-eval-print_loop">REPL</a> (read-evaluate-print-loop). A REPL is a small, interactive programming environment. Just run a console and issue commands. The NodeJS development experience there is no IDE required, no project, a minimum install and everything else is packages. In NodeJS there is <a href="https://www.npmjs.org/">NPM</a>. The Node Package Modules provides all the modules for easing the development experience.</p>
+<h2>So how about C#?</h2>
+<p>There is an excellent package manager for.Net and&#160; C#, its called <a href="https://en.wikipedia.org/wiki/NuGet">Nuget</a>. It kind of works the same way as in NodeJS, since it does not need to be installed in a global directory, but to specific projects. So Nuget gets us part of way, how about authoring C#? I’d like to be able to use my favorite text editor. On the .Net platform we have <a href="http://msdn.microsoft.com/en-us/vstudio/roslyn.aspx">Roslyn</a>.</p>
+<h3>Roslyn</h3>
+<p>This is not a post on Roslyn, so if you can skip this section, if you know what I’m talking about. Roslyn is a compiler-as-a-service. It was recently released under less-restrictive <a href="https://roslyn.codeplex.com/license">Apache License</a>. So it is possible to use Roslyn in any project you find it useful. It is shipped as a library on Nuget, and there is no requirement to use Visual Studio. Any application can use Roslyn to compile C#. You can add reference using the r# keyword. There is no notion of namespaces, so its kind of a loose script. Everything is compiled into a wrapper class. Also, Roslyn does not support multiple files, everything goes into a single file. Roslyn has no notion of packages, so we’re missing a link between Nuget and Roslyn. This is where ScriptCs comes in, it brings the last mile of what Roslyn brings to the table</p>
+<h1>ScriptCs</h1>
+<p>So what is this ScriptCs?&#160; ScriptCs is pure C# code, without IDE requirement, without a project, without classes, without designer files, without dlls, and without compiling. It has the power of C# and Nuget. </p>
+<h2>Installation</h2>
+<p>Releases and nightly builds should be installed using <a href="https://chocolatey.org/">Chocolatey</a>. If you, for some reason, haven’t heard of Chocolatey before, you’re in for a treat. Chocolatey is like Nuget for applications. If you’re familiar with apt-get on Linux, you know what I’m talking about. To install Chocolatey run the following command in a command prompt:</p>
+<p><code><span>C:\&gt;</span> @powershell -NoProfile -ExecutionPolicy unrestricted -Command &quot;iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))&quot; &amp;&amp; SET PATH=%PATH%;%systemdrive%\chocolatey\bin</code> </p>
+<p>Once Chocolatey is installed, the latest and stable version is installed from command prompt:</p>
+<p><code>cinst scriptcs</code></p>
+<p>Chocolatey will update your PATH environment variable. To update at a later point in time, just:</p>
+<p><code>cup scriptcs</code></p>
+<h2>Writing Scripts</h2>
+<p>Now we’re ready to write some C# scripts. You can use an editor of choice, my preferred editor at the moment is Sublime Text. To write the traditional Hello World, we create a file in Sublime called ‘start.csx’, inside we write a single line:</p>
+<p><a href="http://madstt.dk/wp-content/uploads/2014/04/image.png"><img title="image" style="border: 0px currentcolor; border-image: none; margin-right: auto; margin-left: auto; float: none; display: block; background-image: none;" border="0" alt="image" src="assets/image_thumb.png" width="641" height="59" /></a></p>
+<p>Now save the file and open a command prompt. Execute the following command:</p>
+<p><code>scriptcs start.csx</code></p>
+<p>The command prompt should write, ‘Hello from ScriptCs!’. This is much like NodeJS or Ruby, this very loose scripting experience. Now lets wrap this into a method and call the method:</p>
+<p><a href="http://madstt.dk/wp-content/uploads/2014/04/image2.png"><img title="image" style="border: 0px currentcolor; border-image: none; margin-right: auto; margin-left: auto; float: none; display: block; background-image: none;" border="0" alt="image" src="assets/image_thumb2.png" width="658" height="74" /></a></p>
+<p>Notice that order doesn’t matter in these loose scripts, and we still haven’t defined any class. Executing this script should output the same as before. Also, please notice the text-highlighting, there is a ScriptCs plugin for Sublime Text.</p>
+<p>Now let’s define a class:</p>
+<p><a href="http://madstt.dk/wp-content/uploads/2014/04/image3.png"><img title="image" style="border: 0px currentcolor; border-image: none; margin-right: auto; margin-left: auto; float: none; display: block; background-image: none;" border="0" alt="image" src="assets/image_thumb3.png" width="659" height="135" /></a></p>
+<p>We still get the same output. Notice how fast it is compiled and executed, really powerful stuff. When an error should occur in the script, you’ll get the same error as in Visual Studio. If you want to reference other any .dll, you can use the ‘#r’ keyword, like this:</p>
+<p align="center"><a href="http://madstt.dk/wp-content/uploads/2014/04/image4.png"><img title="image" style="border: 0px currentcolor; border-image: none; display: inline; background-image: none;" border="0" alt="image" src="assets/image_thumb4.png" width="650" height="60" /></a></p>
+<p>This assumes that the assembly is in the GAC, or in a bin folder next to your script. In many console applications we often want to receive arguments from the console, this can be handle by inspecting the Env.ScriptArgs collection like this:</p>
+<p><a href="http://madstt.dk/wp-content/uploads/2014/04/image5.png"><img title="image" style="border: 0px currentcolor; border-image: none; margin-right: auto; margin-left: auto; float: none; display: block; background-image: none;" border="0" alt="image" src="assets/image_thumb5.png" width="656" height="134" /></a></p>
+<p>From the script command line you pass in your arguments like this:</p>
+<p><code>scriptcs start.csx -- &quot;Hello from ScriptCs!&quot;</code></p>
+<p>Your scripts might start to grow, and you want to reuse some script parts. This can be achieved using the ‘#load’ keyword. Reference the scripts you want to include in script like this:</p>
+<p><code>#load &quot;messenger.csx&quot;</code></p>
+<p>Referencing other scripts is recursive, other scripts can have other scripts and so forth. If multiple scripts references the same script, it will reconcile and make sure it only points to the same script once.</p>
+<h2>The REPL</h2>
+<p>Like NodeJS, ScriptCs also features a REPL. From the command line you start the REPL by just typing ‘scriptcs’ without any arguments. In REPL you can write the same code as we did above using script files. You can reference other assemblies using the ‘#r’ keyword and reference script files using the ‘#load’ keyword. It is possible to write multi-line statements, where symbols like ‘{’ makes it possible to add more lines until the statement is closed by a pairing ‘}’.</p>
+<p>The REPL is very useful for quickly experimenting with some C# code, without any IDE or script file. This is probably the shortest path to a C# scratch pad you’ll see around. </p>
+<h2>Debugging</h2>
+<p>Scripts are cool, but when apps get sophisticated debugging is essential. It is possible to debug your scripts, but currently quite cumbersome. IT requires you to install the Visual Studio 2012 SDK and the Roslyn. See this <a href="https://github.com/scriptcs/scriptcs/wiki/Debugging-a-script">guide</a> on debugging.</p>
+<h2>Packages</h2>
+<p>As stated above, ScriptCs it meant as a tool to close the gap between Roslyn and Nuget, how is the achieved. By using the ‘install’ command, we can utilize the Nuget api. Nuget has its own Nuget packages, these can be used to call out to the Nuget api. In the example below, we use the ‘install’ command to retrieve MongoDb from Nuget:</p>
+<p><code>scriptcs -install mongodb      <br />INFO: Installing packages...       <br />INFO: Installed: mongodb       <br />INFO: Installation completed successfully.       <br />INFO: Saving packages in packages.config...       <br />INFO: Createing packages.config       <br />INFO: Added Mongodb (v.1.7.1.4791, .NET 4.0) to packages.config       <br />INFO: Successfully updated packages.config. </code></p>
+<p>This is just an example, you can retrieve any package available on Nuget using the ‘install’ command. Packages are stored in the Packages folder, such as if it had been a regular Nuget download, and if Packages.config does not exist it will be created. If you distribute you scripts, you can restore all packages using the ‘install’ command, all you need is the Packages.config.</p>
+<p>Often when using the Nuget package as-is, requires a lot of boilerplate coding, which is rather cumbersome in scripts. This is great if you have Visual Studio, but in any other editor or in the REPL, it can be hard to remember namespaces, parameters, methods, etc. Such issues has also been taken care of in the ScriptCs environment. Your friend is called script packs.</p>
+<h2>Script Packs</h2>
+<p>In NodeJS you can require a module, this gives you an object, with functions attached that leads you wherever you need to go. You don’t need to remember namespaces or new up objects. All you have to do is make a ‘require’. Script packs is one of the great pieces inherited from NodeJS. Script packs makes APIs much easier to consume from a script. They wrap existing frameworks and provide nicer interaction. Script packs can facilitate injecting using statements and/or provide you with an object to work with.</p>
+<p>One very brilliant example of a script pack is the scriptcs.nancy script pack. Its created by <a href="https://twitter.com/adamralph">Adam Ralph</a>, member of the ScriptCs core team. It’s a script pack to make it easier to use the Nancy web framework from a script file. Script packs are installed as packages using the ‘install’ command. Since a script pack is itself a package it specifies all its requirements. So it might need to retrieve other Nuget packages. Lets install the scriptcs.nancy script pack:</p>
+<p><code>scriptcs -install scriptcs.nancy</code></p>
+<p>Thats it. Now we can start using the Nancy web framework from script, like this:</p>
+<p><code>Require&lt;NancyPack&gt;<nancypack>().Get(&quot;/&quot;, _ =&gt; &quot;Hello world&quot;).Host();</nancypack></code></p>
+<p>Save the script, and execute. Now go to your favorite browser, and hit <a href="http://localhost:8888">http://localhost:8888</a>. It should write out ‘Hello world’. The Require&lt;&gt; keyword is ScriptCs specific, and not part of Roslyn. Script packs gives you time to focus on the code you really like to write, and not all the boilerplate and setup. </p>
+<p>There is a master list of script packs on the ScriptCs <a href="https://github.com/scriptcs/scriptcs/wiki/Script-Packs-master-list">GitHub wiki</a>.</p>
+<h2>Hosting</h2>
+<p>One last topic I’d like to touch in this post is hosting. ScriptCs has a very powerful hosting layer. This allows you to execute scripts in different environments. Now the examples of hosting is pretty complex, and there is some very great blog posts on these matters out there already. A great example of hosting a script inside <a href="http://getglimpse.com/">Glimpse</a> is written by <a href="http://www.strathweb.com/2013/10/extend-glimpse-fly-scriptcs-code-execution-tab-glimpse/">Filip Wojcieszyn</a>, one of the founders and coordinators of ScriptCs. Other examples can be found in ScriptCs <a href="https://github.com/scriptcs/scriptcs-samples">samples repository</a> on GitHub. I would recommend the <a href="https://github.com/scriptcs/scriptcs-samples/tree/master/webapihost">WebApi</a> hosting sample.</p>
+<h2>Conclusion</h2>
+<p>With this blog post I hope I was able to inspire you to take a closer look at ScriptCs and find some useful applications. Please throw me some comments of where you could think of using ScriptCs. </p>

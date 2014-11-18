@@ -1,0 +1,174 @@
+---
+layout: post
+title: NUnit Support for AutoFixture
+date: 2013-10-03 14:28:58.000000000 +02:00
+categories:
+- AutoFixture
+tags: []
+status: publish
+type: post
+published: true
+meta: {}
+author:
+  login: admin
+  email: mads.toustrup@gmail.com
+  display_name: admin
+  first_name: ''
+  last_name: ''
+---
+<p>For a more general introduction to AutoFixture, see my previous <a href="http://madstt.dk/customizations-with-autofixture/">post</a>. </p>
+<p>For a long time it has been an <a href="https://xunit.codeplex.com/">xUnit</a> exclusive to utilize <a href="http://blog.ploeh.dk/2010/10/08/AutoDataTheorieswithAutoFixture/">AutoData</a> in your test suites. The extensibility model of <a href="http://www.nunit.org/">NUnit</a>, made the migration to NUnit cumbersome, to say the least. Recently, <a href="http://gertjvr.wordpress.com/2013/08/29/my-first-open-source-contribution/">Gert Jansen van Rensburg</a>, made the first serious attempt to solve this. Having followed his battles on <a href="https://github.com/AutoFixture/AutoFixture/pull/158">GitHub</a>, he released the first version of the <a href="https://www.nuget.org/packages/AutoFixture.NUnit2/">AutoFixture.NUnit2</a> NuGet package.&#160; </p>
+<p>Although installation and setup is not at smooth as with xUnit, the power of this extension is without question. This post provides a short setup guide on how to install and configure this to work on both local dev machines as well as on <a href="https://www.jetbrains.com/teamcity/">TeamCity</a>. The challenge with the extensibility model of NUnit is the distribution of the Addin, the actual plugin or extension to NUnit. This .dll has to be present in the bin\addins folder of NUnit. This is not preferable in a larger multi dev environment, therefore an alternative approach is <a href="http://gertjvr.wordpress.com/2013/10/02/howto-get-autofixture-nunit2-working-with-ncrunch/">proposed</a>.</p>
+<h2>Installation</h2>
+<ol>
+<li>Go to your NuGet Package Manager, and Install-Package AutoFixture.NUnit2</li>
+<ul>
+<li>If you have any previous version of AutoFixture installed it will be updated to the latest. </li>
+</ul>
+<li>And Install-Package NUnit.Runners</li>
+<li>Make a manual reference to tools\lib\nunit.core.interfaces.dll, which resides in your packages folder under NUnit.Runners.</li>
+<li>The installation of the AutoFixture.NUnit2 package has inserted this line in your AssemblyInfo.cs-file: [assembly: NUnit.Framework.RequiredAddinPloeh.AutoFixture.NUnit2.Addins.Constants.AutoDataExtension)]</li>
+<ul>
+<li>Remove this for now.</li>
+</ul>
+</ol>
+<p>Now everything is installed and ready to go, except that we need to add the NUnit Addin to the test assembly. I know this is cumbersome, and a bitter pill to swallow. As mentioned above, copying the Ploeh.AutoFixture.NUnit2.Addins.dll-file from the packages folder to your unit test runners bin\addins folder:</p>
+<ul>
+<li>NUnit: C:\Program Files (x86)\NUnit 2.6.2\bin\addins</li>
+<li>R#: C:\Program Files (x86)\JetBrains\ReSharper\v8.0\Bin\addins</li>
+</ul>
+<p>&#160;</p>
+<p>As proposed <a href="http://gertjvr.wordpress.com/2013/10/02/howto-get-autofixture-nunit2-working-with-ncrunch/">here</a>, I could also create a new class, which would inherit the Addin, and add this to the test assembly, but in my test setup I found a better spot.</p>
+<h2>Setup</h2>
+<p>Usually I setup my test fixtures using a base class, which among other things holds my AutoFixture configurations, a common setup could look like this:</p>
+<div id="scid:9ce6104f-a9aa-4a17-a79f-3a39532ebf7c:a6cbefee-94e5-4abe-85b3-a3c0b5f98034" class="wlWriterEditableSmartContent" style="float: none; padding-bottom: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px">
+<div style="border: #000080 1px solid; color: #000; font-family: 'Courier New', Courier, Monospace; font-size: 10pt">
+<div style="background: #ddd; overflow: auto">
+<ol start="1" style="background: #ffffff; margin: 0 0 0 2.5em; padding: 0 0 0 5px;">
+<li><span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#0000ff">public</span><span style="background:#ffffff;color:#000000"> </span><span style="background:#ffffff;color:#0000ff">class</span><span style="background:#ffffff;color:#000000"> </span><span style="background:#ffffff;color:#2b91af">TestBase</span></li>
+<li style="background: #f3f3f3"><span style="background:#ffffff;color:#000000">{</span></li>
+<li>    <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#0000ff">protected</span><span style="background:#ffffff;color:#000000"> </span><span style="background:#ffffff;color:#2b91af">IFixture</span><span style="background:#ffffff;color:#000000"> Fixture;</span></li>
+<li style="background: #f3f3f3">    <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#0000ff">protected</span><span style="background:#ffffff;color:#000000"> </span><span style="background:#ffffff;color:#2b91af">GuardClauseAssertion</span><span style="background:#ffffff;color:#000000"> GuardClauseAssertion;</span></li>
+<li>    <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#0000ff">protected</span><span style="background:#ffffff;color:#000000"> </span><span style="background:#ffffff;color:#2b91af">WritablePropertyAssertion</span><span style="background:#ffffff;color:#000000"> WritablePropertyAssertion;</span></li>
+<li style="background: #f3f3f3">&nbsp;</li>
+<li>    <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#0000ff">protected</span><span style="background:#ffffff;color:#000000"> </span><span style="background:#ffffff;color:#0000ff">void</span><span style="background:#ffffff;color:#000000"> Setup()</span></li>
+<li style="background: #f3f3f3">    <span style="background:#ffffff;color:#000000">{</span></li>
+<li>        <span style="background:#ffffff;color:#000000">Fixture = </span><span style="background:#ffffff;color:#0000ff">new</span><span style="background:#ffffff;color:#000000"> </span><span style="background:#ffffff;color:#2b91af">Fixture</span><span style="background:#ffffff;color:#000000">().Customize(</span><span style="background:#ffffff;color:#0000ff">new</span><span style="background:#ffffff;color:#000000"> </span><span style="background:#ffffff;color:#2b91af">AutoMoqCustomization</span><span style="background:#ffffff;color:#000000">());</span></li>
+<li style="background: #f3f3f3">&nbsp;</li>
+<li>        <span style="background:#ffffff;color:#000000">GuardClauseAssertion = </span><span style="background:#ffffff;color:#0000ff">new</span><span style="background:#ffffff;color:#000000"> </span><span style="background:#ffffff;color:#2b91af">GuardClauseAssertion</span><span style="background:#ffffff;color:#000000">(Fixture);</span></li>
+<li style="background: #f3f3f3">        <span style="background:#ffffff;color:#000000">WritablePropertyAssertion = </span><span style="background:#ffffff;color:#0000ff">new</span><span style="background:#ffffff;color:#000000"> </span><span style="background:#ffffff;color:#2b91af">WritablePropertyAssertion</span><span style="background:#ffffff;color:#000000">(Fixture);</span></li>
+<li>    <span style="background:#ffffff;color:#000000">}</span></li>
+<li style="background: #f3f3f3"><span style="background:#ffffff;color:#000000">}</span></li>
+</ol></div>
+</p></div>
+</p></div>
+<p>&#160;</p>
+<p>Now this also makes it a perfect spot for my NUnit Addin class, which I’ll include by inheritance:</p>
+<div id="scid:9ce6104f-a9aa-4a17-a79f-3a39532ebf7c:0cd93743-cc10-4f58-a11a-739bc7fc435a" class="wlWriterEditableSmartContent" style="float: none; padding-bottom: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px">
+<div style="border: #000080 1px solid; color: #000; font-family: 'Courier New', Courier, Monospace; font-size: 10pt">
+<div style="background: #ddd; overflow: auto">
+<ol start="1" style="background: #ffffff; margin: 0 0 0 2.5em; padding: 0 0 0 5px;">
+<li><span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#0000ff">using</span><span style="background:#ffffff;color:#000000"> NUnit.Core.Extensibility;</span></li>
+<li style="background: #f3f3f3"><span style="background:#ffffff;color:#000000"></span></li>
+<li><span style="background:#ffffff;color:#000000">[</span><span style="background:#ffffff;color:#2b91af">NUnitAddin</span><span style="background:#ffffff;color:#000000">]</span></li>
+<li style="background: #f3f3f3"><span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#0000ff">public</span><span style="background:#ffffff;color:#000000"> </span><span style="background:#ffffff;color:#0000ff">class</span><span style="background:#ffffff;color:#000000"> </span><span style="background:#ffffff;color:#2b91af">TestBase</span><span style="background:#ffffff;color:#000000"> : Ploeh.AutoFixture.NUnit2.Addins.</span><span style="background:#ffffff;color:#2b91af">Addin</span></li>
+<li><span style="background:#ffffff;color:#000000">{</span></li>
+<li style="background: #f3f3f3">    <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#0000ff">protected</span><span style="background:#ffffff;color:#000000"> </span><span style="background:#ffffff;color:#2b91af">IFixture</span><span style="background:#ffffff;color:#000000"> Fixture;</span></li>
+<li>    <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#0000ff">protected</span><span style="background:#ffffff;color:#000000"> </span><span style="background:#ffffff;color:#2b91af">GuardClauseAssertion</span><span style="background:#ffffff;color:#000000"> GuardClauseAssertion;</span></li>
+<li style="background: #f3f3f3">    <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#0000ff">protected</span><span style="background:#ffffff;color:#000000"> </span><span style="background:#ffffff;color:#2b91af">WritablePropertyAssertion</span><span style="background:#ffffff;color:#000000"> WritablePropertyAssertion;</span></li>
+<li>&nbsp;</li>
+<li style="background: #f3f3f3">    <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#0000ff">protected</span><span style="background:#ffffff;color:#000000"> </span><span style="background:#ffffff;color:#0000ff">void</span><span style="background:#ffffff;color:#000000"> Setup()</span></li>
+<li>    <span style="background:#ffffff;color:#000000">{</span></li>
+<li style="background: #f3f3f3">        <span style="background:#ffffff;color:#000000">Fixture = </span><span style="background:#ffffff;color:#0000ff">new</span><span style="background:#ffffff;color:#000000"> </span><span style="background:#ffffff;color:#2b91af">Fixture</span><span style="background:#ffffff;color:#000000">().Customize(</span><span style="background:#ffffff;color:#0000ff">new</span><span style="background:#ffffff;color:#000000"> </span><span style="background:#ffffff;color:#2b91af">AutoMoqCustomization</span><span style="background:#ffffff;color:#000000">());</span></li>
+<li>&nbsp;</li>
+<li style="background: #f3f3f3">        <span style="background:#ffffff;color:#000000">GuardClauseAssertion = </span><span style="background:#ffffff;color:#0000ff">new</span><span style="background:#ffffff;color:#000000"> </span><span style="background:#ffffff;color:#2b91af">GuardClauseAssertion</span><span style="background:#ffffff;color:#000000">(Fixture);</span></li>
+<li>        <span style="background:#ffffff;color:#000000">WritablePropertyAssertion = </span><span style="background:#ffffff;color:#0000ff">new</span><span style="background:#ffffff;color:#000000"> </span><span style="background:#ffffff;color:#2b91af">WritablePropertyAssertion</span><span style="background:#ffffff;color:#000000">(Fixture);</span></li>
+<li style="background: #f3f3f3">    <span style="background:#ffffff;color:#000000">}</span></li>
+<li><span style="background:#ffffff;color:#000000">}</span></li>
+</ol></div>
+</p></div>
+</p></div>
+<p>&#160;</p>
+<p>So adding the NUnitAddin attribute and inheriting the Ploeh.AutoFixture.NUnit2.Addins.Addin class, I don’t have to copy the addin .dll to the approriate bin\addins folder. Please note the using statement. This way it is by far easier to setup and distribute in the large developer environment. Since also works with TeamCity, otherwise you would have to setup your NUnit Test Launcher on TeamCity to locate the addin, not advisable and a poorly documented approach.</p>
+<h2></h2>
+<h2>Usage</h2>
+<p>With all these efforts behind us, we can now easily auto-generate test data via parameters, such as this:</p>
+<div id="scid:9ce6104f-a9aa-4a17-a79f-3a39532ebf7c:638b2534-a56b-41b4-83e7-d6f7c7d68e7d" class="wlWriterEditableSmartContent" style="float: none; padding-bottom: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px">
+<div style="border: #000080 1px solid; color: #000; font-family: 'Courier New', Courier, Monospace; font-size: 10pt">
+<div style="background: #ddd; overflow: auto">
+<ol start="1" style="background: #ffffff; margin: 0 0 0 2.5em; padding: 0 0 0 5px;">
+<li><span style="background:#ffffff;color:#000000">[</span><span style="background:#ffffff;color:#2b91af">Test</span><span style="background:#ffffff;color:#000000">, </span><span style="background:#ffffff;color:#2b91af">AutoData</span><span style="background:#ffffff;color:#000000">]</span></li>
+<li style="background: #f3f3f3"><span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#0000ff">public</span><span style="background:#ffffff;color:#000000"> </span><span style="background:#ffffff;color:#0000ff">void</span><span style="background:#ffffff;color:#000000"> WhateverTestName(</span><span style="background:#ffffff;color:#0000ff">int</span><span style="background:#ffffff;color:#000000"> foo, </span><span style="background:#ffffff;color:#0000ff">string</span><span style="background:#ffffff;color:#000000"> baa)</span></li>
+<li><span style="background:#ffffff;color:#000000">{</span></li>
+<li style="background: #f3f3f3">    <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#008000">// Arrange</span></li>
+<li>&nbsp;</li>
+<li style="background: #f3f3f3">    <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#008000">// Act</span></li>
+<li>&nbsp;</li>
+<li style="background: #f3f3f3">    <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#008000">// Assert</span></li>
+<li><span style="background:#ffffff;color:#000000">}</span></li>
+</ol></div>
+</p></div>
+</p></div>
+<p>&#160;</p>
+<p>In this test case foo and baa will be assigned auto-generate values by AutoFixture. Now there is much more in the box. So far, the NUnit TestCase attribute have had a rather sparse set of allowed types, such as ints, strings, bool, etc. With AutoData it is now possible auto-generate types as decimal, and even complex types:</p>
+<div id="scid:9ce6104f-a9aa-4a17-a79f-3a39532ebf7c:6acf9238-88b6-43f4-8a9d-1ea4445ec39c" class="wlWriterEditableSmartContent" style="float: none; padding-bottom: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px">
+<div style="border: #000080 1px solid; color: #000; font-family: 'Courier New', Courier, Monospace; font-size: 10pt">
+<div style="background: #ddd; overflow: auto">
+<ol start="1" style="background: #ffffff; margin: 0 0 0 2.5em; padding: 0 0 0 5px;">
+<li><span style="background:#ffffff;color:#000000">[</span><span style="background:#ffffff;color:#2b91af">Test</span><span style="background:#ffffff;color:#000000">, </span><span style="background:#ffffff;color:#2b91af">AutoData</span><span style="background:#ffffff;color:#000000">]</span></li>
+<li style="background: #f3f3f3"><span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#0000ff">public</span><span style="background:#ffffff;color:#000000"> </span><span style="background:#ffffff;color:#0000ff">void</span><span style="background:#ffffff;color:#000000"> WhateverTestName(</span><span style="background:#ffffff;color:#0000ff">decimal</span><span style="background:#ffffff;color:#000000"> foo, </span><span style="background:#ffffff;color:#2b91af">MyClass</span><span style="background:#ffffff;color:#000000"> sut)</span></li>
+<li><span style="background:#ffffff;color:#000000">{</span></li>
+<li style="background: #f3f3f3">    <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#008000">// Arrange</span></li>
+<li>&nbsp;</li>
+<li style="background: #f3f3f3">    <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#008000">// Act</span></li>
+<li>&nbsp;</li>
+<li style="background: #f3f3f3">    <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#008000">// Assert</span></li>
+<li><span style="background:#ffffff;color:#000000">}</span></li>
+</ol></div>
+</p></div>
+</p></div>
+<p>&#160;</p>
+<p>This is all great and awesome, but wait there is some minors that also might come in handy.</p>
+<p>You might have some test scenarios where you would still like to supply your own test data. This will work great along AutoData:</p>
+<div id="scid:9ce6104f-a9aa-4a17-a79f-3a39532ebf7c:3ffec81d-a7da-4127-9c3e-518ed11da570" class="wlWriterEditableSmartContent" style="float: none; padding-bottom: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px">
+<div style="border: #000080 1px solid; color: #000; font-family: 'Courier New', Courier, Monospace; font-size: 10pt">
+<div style="background: #ddd; overflow: auto">
+<ol start="1" style="background: #ffffff; margin: 0 0 0 2.5em; padding: 0 0 0 5px;">
+<li><span style="background:#ffffff;color:#000000">[</span><span style="background:#ffffff;color:#2b91af">Test</span><span style="background:#ffffff;color:#000000">, </span><span style="background:#ffffff;color:#2b91af">AutoData</span><span style="background:#ffffff;color:#000000">]</span></li>
+<li style="background: #f3f3f3"><span style="background:#ffffff;color:#000000">[</span><span style="background:#ffffff;color:#2b91af">TestCase</span><span style="background:#ffffff;color:#000000">(5, </span><span style="background:#ffffff;color:#a31515">&quot;Some String&quot;</span><span style="background:#ffffff;color:#000000">)]</span></li>
+<li><span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#0000ff">public</span><span style="background:#ffffff;color:#000000"> </span><span style="background:#ffffff;color:#0000ff">void</span><span style="background:#ffffff;color:#000000"> WhateverTestName(</span><span style="background:#ffffff;color:#0000ff">int</span><span style="background:#ffffff;color:#000000"> foo, </span><span style="background:#ffffff;color:#0000ff">string</span><span style="background:#ffffff;color:#000000"> baa)</span></li>
+<li style="background: #f3f3f3"><span style="background:#ffffff;color:#000000">{</span></li>
+<li>    <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#008000">// Arrange</span></li>
+<li style="background: #f3f3f3">&nbsp;</li>
+<li>    <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#008000">// Act</span></li>
+<li style="background: #f3f3f3">&nbsp;</li>
+<li>    <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#008000">// Assert</span></li>
+<li style="background: #f3f3f3"><span style="background:#ffffff;color:#000000">}</span></li>
+</ol></div>
+</p></div>
+</p></div>
+<p>&#160;</p>
+<p>This will generate two test cases, the first one with auto-generated test data from AutoFixture, and the second one with the test data from the TestCase attribute. Note, that the types must be allowed by the TestCase attribute.</p>
+<p>Lets consider a more advanced scenario. I have previously described how to use AutoFixture as an <a href="http://madstt.dk/customizations-with-autofixture/">auto-mocking container</a>. This is how we would auto-generate and freeze our dependencies using AutoData:</p>
+<div id="scid:9ce6104f-a9aa-4a17-a79f-3a39532ebf7c:d5a272b8-0034-4bd1-ab01-f94db4d5931a" class="wlWriterEditableSmartContent" style="float: none; padding-bottom: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px">
+<div style="border: #000080 1px solid; color: #000; font-family: 'Courier New', Courier, Monospace; font-size: 10pt">
+<div style="background: #ddd; overflow: auto">
+<ol start="1" style="background: #ffffff; margin: 0 0 0 2.5em; padding: 0 0 0 5px;">
+<li><span style="background:#ffffff;color:#000000">[</span><span style="background:#ffffff;color:#2b91af">Test</span><span style="background:#ffffff;color:#000000">, </span><span style="background:#ffffff;color:#2b91af">AutoData</span><span style="background:#ffffff;color:#000000">]</span></li>
+<li style="background: #f3f3f3"><span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#0000ff">public</span><span style="background:#ffffff;color:#000000"> </span><span style="background:#ffffff;color:#0000ff">void</span><span style="background:#ffffff;color:#000000"> WhateverTestName([</span><span style="background:#ffffff;color:#2b91af">Frozen</span><span style="background:#ffffff;color:#000000">]</span><span style="background:#ffffff;color:#2b91af">Mock</span><span style="background:#ffffff;color:#000000">&lt;</span><span style="background:#ffffff;color:#2b91af">IService1</span><span style="background:#ffffff;color:#000000">&gt; service1Mock, </span></li>
+<li>    <span style="background:#ffffff;color:#000000">[</span><span style="background:#ffffff;color:#2b91af">Frozen</span><span style="background:#ffffff;color:#000000">]</span><span style="background:#ffffff;color:#2b91af">Mock</span><span style="background:#ffffff;color:#000000">&lt;</span><span style="background:#ffffff;color:#2b91af">IService2</span><span style="background:#ffffff;color:#000000">&gt; service2Mock, </span></li>
+<li style="background: #f3f3f3">    <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#2b91af">MyClass</span><span style="background:#ffffff;color:#000000"> sut)</span></li>
+<li><span style="background:#ffffff;color:#000000">{</span></li>
+<li style="background: #f3f3f3">    <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#008000">// Arrange</span></li>
+<li>&nbsp;</li>
+<li style="background: #f3f3f3">    <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#008000">// Act</span></li>
+<li>&nbsp;</li>
+<li style="background: #f3f3f3">    <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#008000">// Assert</span></li>
+<li><span style="background:#ffffff;color:#000000">}</span></li>
+</ol></div>
+</p></div>
+</p></div>
+<p>&#160;</p>
+<p>In this test case we let AutoFixture freeze the dependencies that I would like to setup expectations for, and AutoFixture will the inject them during the creation of the MyClass sut.</p>
+<p>These are some of the great new possibilities of the latest extension to AutoFixture, you can probably come up with other awesome scenarios.</p>
+<p>Finally, I must send all credits for the extension to <a href="http://gertjvr.wordpress.com/2013/08/29/my-first-open-source-contribution/">Gert Jansen van Rensburg</a>. Read his blog and follow him on <a href="https://twitter.com/gertjvr81">Twitter</a>.</p>

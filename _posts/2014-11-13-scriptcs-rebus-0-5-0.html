@@ -1,0 +1,97 @@
+---
+layout: post
+title: scriptcs.rebus 0.5.0
+date: 2014-11-13 05:37:15.000000000 +01:00
+categories:
+- scriptcs
+- scriptcs.rebus
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+author:
+  login: admin
+  email: mads.toustrup@gmail.com
+  display_name: admin
+  first_name: ''
+  last_name: ''
+---
+<p>This release is coming very soon after the 0.4.0. It doesn't mean that I'm going to increase my release cycle, it's just that I have some new features that I'd like to share with you and there were things in the 0.4.0 that I wasn't satisfied with.</p>
+<h2>What's New</h2>
+<p>The following subsections describe the new features of scriptcs.rebus 0.5.0.</p>
+<h3>New API for scriptcs.rebus.hosting</h3>
+<p>In 0.4.0 I introduced the hosting feature in scriptcs.rebus. With this feature you can extend any standard .Net application with new functionality using scriptcs. You would send a custom script to a host application, which would then be able to compile the script and execute this inside the host process. Now, in 0.4.0 you would send the script like this:</p>
+<pre><code>Require&lt;RebusScriptBus&gt;()
+    .ConfigureBus("myOwnBus")
+    .SendAScriptFile("start.csx")
+</code></pre>
+<p>This would send the script inside the <code>start.csx</code> to a host for execution. And, if you would need to download and reference a NuGet package, you would do it like this:</p>
+<pre><code>Require&lt;RebusScriptBus&gt;()
+    .ConfigureBus("myOwnBus")
+    .SendAScriptFile("start.csx", "mongocsharpdriver")
+</code></pre>
+<p>This would download and reference the Mongo C# driver and execute the <code>start.csx</code> script inside the host application. This was my initial and, admitted, pretty naive implementation. So, when I wanted to introduce the use of the Mono compiler inside the hosted application, I ran into some issues. You can read all about my endeavours with scriptcs.hosting <a href="http://madstt.dk/endeavours-with-scriptcs-hosting/">here</a>.</p>
+<p>So, in 0.5.0 I've changed the API, so now if you want to send a script you go like this:</p>
+<pre><code>Require&lt;RebusScriptBus&gt;()
+    .ConfigureBus("myOwnBus")
+    .WithAScript("Console.WriteLine(\"Hello everyone!\")")
+    .Send()
+</code></pre>
+<p>And a script file:</p>
+<pre><code>Require&lt;RebusScriptBus&gt;()
+    .ConfigureBus("myOwnBus")
+    .WithAScriptFile("start.csx")
+    .Send()
+</code></pre>
+<p>This is all just semantics, so why the change? Well, I wanted to add a bunch of additional options, so therefore I needed a fluent api for this. In the following sections I'll shortly describe them.</p>
+<h3>Add a Local Reference to Host Executed Script</h3>
+<p>If you want to reference a local assembly to be used in your script, this could be an assembly that is part of the host application, you can add the following option:</p>
+<pre><code>Require&lt;RebusScriptBus&gt;()
+    .ConfigureBus("myOwnBus")
+    .WithAScriptFile("start.csx")
+        .AddLocal("someLocal.dll")
+    .Send()
+</code></pre>
+<p>Now, you can reference more local assemblies, just add another <code>AddLocal()</code>.</p>
+<h3>Download and Reference a NuGet Package for Host Executed Script</h3>
+<p>So if your script needs a NuGet package to extend the host, you can specify these using the <code>AddFromNuGet()</code> like this:</p>
+<pre><code>Require&lt;RebusScriptBus&gt;()
+    .ConfigureBus("myOwnBus")
+    .WithAScriptFile("start.csx")
+        .AddFromNuGet("mongocsharpdriver")
+    .Send()
+</code></pre>
+<p>Again, you can add multiple <code>AddFromNuGet()</code> to the configuration.</p>
+<h3>Importing a Namespace for a Host Executed Script</h3>
+<p>So, imagine we now have downloaded a NuGet package or referenced a local assembly, then to make it available for the script, you need to specify in which namespace to find the type you wanna use:</p>
+<pre><code>Require&lt;RebusScriptBus&gt;()
+    .ConfigureBus("myOwnBus")
+    .WithAScriptFile("start.csx")
+        .AddFromNuGet("mongocsharpdriver")
+        .ImportNamespace("MongoDB.Bson")
+    .Send()
+</code></pre>
+<p>This would download and reference the Mongo C# driver and make the MongoDB.Bson namespace available to the script for execution.</p>
+<h3>Using the Mono Compiler on the Host</h3>
+<p>Since the current release of Roslyn, does not support things like the <code>dynamic</code> keyword or <code>async/await</code>, it might be handy to be able to use the Mono compiler on the host:</p>
+<pre><code>Require&lt;RebusScriptBus&gt;()
+    .ConfigureBus("myOwnBus")
+    .WithScriptFile("start.csx")
+        .UseMono()
+    .Send()
+</code></pre>
+<p>Now the Mono compiler is set as execution engine, the script will be compiled. A scenario like this could also be relevant when doing cross-platform development.</p>
+<h3>Logging Inside the Host</h3>
+<p>In some cases it might be great to see some debugging output in the host console.</p>
+<pre><code>Require&lt;RebusScriptBus&gt;()
+    .ConfigureBus("myOwnBus")
+    .WithScriptFile("start.csx")
+        .UseLogging()
+    .Send()
+</code></pre>
+<p>This sets the loglevel to Debug, instead of Info which is default. This feature is only relevant in a limited number of cases where the host is a console application.</p>
+<h3>Using Script Packs Inside a Host</h3>
+<p>Script packs are really just NuGet packages used for hiding boilerplate code of common frameworks. Therefore, if you download and reference a script pack, it will be made available to the script without any further.</p>
+<p>That's all there is to 0.5.0. So throw me comment, either below or on <a href="https://twitter.com/madstt">Twitter</a>.</p>

@@ -1,0 +1,67 @@
+---
+layout: post
+title: ErrorProvider providing localization difficulties
+date: 2008-07-24 14:05:25.000000000 +02:00
+categories:
+- .Net framework
+- Controls
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+author:
+  login: admin
+  email: mads.toustrup@gmail.com
+  display_name: admin
+  first_name: ''
+  last_name: ''
+---
+<p>The .Net framework provides several mechanisms for indicating invalid user inputs. You can use a MessageBox to indicate that the state of the control is not valid. A MessageBox can then provide the reason and remedies in the popup dialog box. Having several controls that needs user input this approach can be both cumbersome and intrusive for the user. Other approaches could be a balloon message, using the status panel or giving an audio clue of the invalid input. The .Net framework also provides a control named <a href="http://http://msdn.microsoft.com/en-us/library/system.windows.forms.errorprovider.aspx">ErrorProvider</a>, which is a control you can attach to any control that needs validation logic. If the error description string is set, an icon will appear next to the control. Hovering the mouse over the icon, a tooltip will display the error description string.</p>
+<h3>How to use the ErrorProvider</h3>
+<p>You can either drag the control from the ToolBox or you can programatically create an instance of the ErrorProvider. To modify the behavior, you can set the following properties:</p>
+<ul>
+<li>BlinkRate: This is the rate in milliseconds with which the icon will blink.</li>
+<li>BlinkStyle: This property can have one of the following values, AlwaysBlink, BlinkIfDifferentError or NeverBlink.</li>
+<li>Icon: The icon that is displayed when the error description string is set.</li>
+<li>IconAlignment: Where the icon should be placed relative to the control.</li>
+<li>IconPadding: The extra space between the error icon and the control.</li>
+</ul>
+<p>Whenever the control's state is invalid, you set the error description string, by using the SetError method on the ErrorProvider control.</p>
+<pre>if (!validUserInput(textBox.Text))
+{
+  errorProvider1.SetError(this, "Invalid user input");
+}
+else
+{
+  errorProvider1.SetError(this, "");
+}</pre>
+<p>This displays the error symbol next to the control.</p>
+<h3>Localization difficulties</h3>
+<p>This is a very useful control for providing non-intrusive feedback to the user. But, there is something that bothers every time I'm using this control. Why do you have to set a 'string' to display an icon?! I don't get it. Its the only control in the .Net framework that uses this "mechanism". Elsewhere its either a Start() method, Enable() method etc.</p>
+<p>By combining a string with control display features it is difficult to use localization. In many applications it is evident to provide error descriptors in different languages, but when you cannot set the descriptor in whatever language without displaying the icon, you face additional work. Fortunately there are multiple options to come around this. One neat and clean solution is to create a user control that inherites the ErrorProvider. The new user control holds the local error descriptor string, which you can change whenever you'd like to without displaying the icon. Then you provide an Enable() method which calls SetError with the local string and displays the icon.</p>
+<pre>class NewUserControl : ErrorProvider
+{
+  private string errorDescriptor;
+
+  ...
+
+  string ErrorDescriptor
+  {
+    set
+    {
+      errorDescriptor = value;
+    }
+    get
+    {
+      return errorDescriptor;
+    }
+  }
+
+  void Enable()
+  {
+    base.SetError(errorDescriptor);
+  }</pre>
+<pre>}</pre>
+<p>Another option is to use the ResourceManager. When using the ResourceManager, you add a resource file, .resx file,  to your project. Name it this way, Res.XX.resx, where the XXs are you language you're writing strings for, e.g. 'en' for english, 'da' for danish. When using the ResourceManager's GetString() method, you can receive the correct localized string. To use this method across the whole solution, a satellite assembly should be used. I'll make a post of this on another occation.</p>

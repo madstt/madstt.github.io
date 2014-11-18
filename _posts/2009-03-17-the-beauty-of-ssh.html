@@ -1,0 +1,24 @@
+---
+layout: post
+title: The beauty of SSH
+date: 2009-03-17 15:48:38.000000000 +01:00
+categories:
+- Networking
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+author:
+  login: admin
+  email: mads.toustrup@gmail.com
+  display_name: admin
+  first_name: ''
+  last_name: ''
+---
+<p>In some cases it might be desirable to get access to your home network. This could be servers, printers, client PCs, etc. At home I have a <a href="http://www.fireflymediaserver.org/">Firefly</a><a href="http://www.fireflymediaserver.org/"> Media Server</a>, formerly known as mt-daapd, with all my digital music. Firefly is a cool media server that can stream .mp3, .ogg, .flac, .aac, and .wma. It also supports ID3 tagging. It can on-the-fly transcode .ogg, .flac, .alac, and .wma. It support Roku Server Protocol (RSP) and <a href="http://en.wikipedia.org/wiki/Digital_Audio_Access_Protocol">Digital Audio Access Protocol</a> (DAAP). This means that you're able to stream the content in iTunes and on your Roku Soundbridge.</p>
+<p>Firefly is also able to stream its content through a Java applet. This makes it possible to access all your digital music from any webbrowser. This is a cool feature, it gives you the oppotunity to listen to you tunes when you're away from it could be at work, at a party, on vacation, etc. All it requires is internet access.</p>
+<p>When it comes to digital distribution of music there is always a 'but'. In this case the 'but' is that Firefly uses port 3689, which usually is blocked by many firewalls. This is also the case at my company. This is when the beauty of <a href="http://en.wikipedia.org/wiki/Secure_Shell">SSH</a>, Secure Shell, comes in handy. SSH allow secure exchange of data between two networked devices using secure channels. The SSH server listens on standard TCP port 22, but you might want to change this since port scanners also knows about SSH. This protocol is often used during network maintenance and is therefore usually open. Through SSH you can gain a secure, encrypted access to your home network. In my case this means, among other things, access to my digital content.</p>
+<p>I use a small, but excellent application, called <a href="http://en.wikipedia.org/wiki/PuTTY">PuTTY</a>. PuTTY is a terminal emulator application which can act as SSH client. In PuTTY you can define secure tunnels by port forwarding to the clients on your home network. Since the SSH server is also running on the same machine as Firefly, I add the following forwarded port: localhost:3689. Through a public-private key arrangement (key generation is provided by PuTTYGen) I can gain access, through SSH, to my home server. When PuTTY has connected to my home server, I can type http://localhost:3689/applet.html in my default browser and enter the required password. Then the Firefly Java applet will launch.  Sweet.</p>
+<p>I have set up other tunnels, for <a href="http://mediatomb.cc/">MediaThomb</a>, <a href="http://mysql.com/">MySql</a>, etc. These are all servers running on the same Linux machine. It gets even more beautiful, when accessing other clients on the home network. I don't remember the exact reason, but I once had to access the webpage of my router. I probably had to open a port or give wireless access to someone. You cannot access this webpage from the outside. I set up a tunnel for the IP address of the router and port 80, and bingo, I had access to my router. The funny thing is that I use SSH to gain a secure tunnel through my router and then I accessed the router's IP address from inside the network. That is some sweet stuff.</p>

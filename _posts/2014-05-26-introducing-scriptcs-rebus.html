@@ -1,0 +1,73 @@
+---
+layout: post
+title: Introducing ScriptCs.Rebus
+date: 2014-05-26 13:45:50.000000000 +02:00
+categories:
+- scriptcs
+- scriptcs.rebus
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+author:
+  login: admin
+  email: mads.toustrup@gmail.com
+  display_name: admin
+  first_name: ''
+  last_name: ''
+---
+<p>In a recent <a href="http://http://madstt.dk/the-scriptcs-101/">blog post</a> I introduced the reader to the world of scripting with C# using <a href="http://scriptcs.net">ScriptCs</a>.  I really love the idea of encapsulating boiler-plate code into a script pack, and be able to consume larger frameworks from simple scripts. One of my favorite frameworks is <a href="https://github.com/rebus-org/Rebus">Rebus</a>. Rebus is this lean and very simple service bus. It is founded and coordinated by my good friend <a href="https://twitter.com/mookid8000">Mogens Heller Grabe</a>.</p>
+<h2>Why?</h2>
+<p>Well, why not? Rebus is a simple, yet powerful framework for messaging, it is obvious for me to make Rebus <em>the</em> messaging engine for ScriptCs. On the current work project we use Rebus extensively, and to provide some sample messages and for testing purposes, we’ve so far used small console applications. It is my intend to switch over and use ScriptCs.Rebus from now on. With scripting possibilities for messaging I can imagine larger test scenarios, and stress-testing.</p>
+<h2>Basic Usage from REPL</h2>
+<p>I’d refer to the readme on <a href="https://github.com/madstt/ScriptCs.Rebus">GitHub</a> for installation guidelines.</p>
+<p>To enter the REPL, run <code>scriptcs</code>. Send a message of type string to MyMessageQueue:</p>
+<pre class="brush: csharp; auto-links: true; collapse: false; first-line: 0; gutter: true; html-script: false; light: false; ruler: false; smart-tabs: true; tab-size: 4; toolbar: true;">Require&lt;RebusScriptBus&gt;()
+    .ConfigureBus("MyMessageQueue")
+    .Send&lt;string&gt;("My first scripted message!")</pre>
+<pre class="brush: csharp; auto-links: true; collapse: false; first-line: 0; gutter: true; html-script: false; light: false; ruler: false; smart-tabs: true; tab-size: 4; toolbar: true;">&#160; </pre>
+<p>Now open another command prompt or use the same, and enter the following to receive the message of type string from MyMessageQueue:</p>
+<pre class="brush: csharp; auto-links: true; collapse: false; first-line: 0; gutter: true; html-script: false; light: false; ruler: false; smart-tabs: true; tab-size: 4; toolbar: true;">Require&lt;RebusScriptBus&gt;()
+    .ConfigureBus("MyMessageQueue")
+    .Receive&lt;string&gt;(x =&gt; Console.WriteLine(x))
+    .Start()</pre>
+<pre class="brush: csharp; auto-links: true; collapse: false; first-line: 0; gutter: true; html-script: false; light: false; ruler: false; smart-tabs: true; tab-size: 4; toolbar: true;"><br /></pre>
+<p>The command prompt should output the following:</p>
+<p><code>From MyMessageQueue &gt; My first scripted message!</code></p>
+<h2>Basic Usage from Script</h2>
+<p>The examples from above apply to scripts. Put the send and receive code into two <code>.csx</code> files, lets call them <code>send.csx</code> and <code>receive.csx</code>, and execute them by typing the following from a command prompt:</p>
+<p><code>scriptcs send.csx</code> and</p>
+<p><code>scriptcs receive.csx</code></p>
+<p>In the <a href="https://github.com/madstt/ScriptCs.Rebus/tree/master/samples"><code>\samples</code></a> folder there is some samples to get you started.</p>
+<h2>Advanced Usage</h2>
+<p>At this point you should be able to apply these more advanced usages to both the REPL and from scripts.</p>
+<h3><a href="https://github.com/madstt/ScriptCs.Rebus#custom-types" name="user-content-custom-types"></a>Custom Types</h3>
+<p>It is possible to use custom types in your messages. Consider the following class:</p>
+<p><code>public class Message { public string Content { get; set; } }</code></p>
+<p>You enter this class definition in the REPL or create a <code>message.csx</code> script file. If defined in a script file, load this class definition into your script by using <code>#load</code> keyword,</p>
+<p><code>#load "message.csx"</code></p>
+<p>Now you can send and receive messages of this type by using the following syntax:</p>
+<pre class="brush: csharp; auto-links: true; collapse: false; first-line: 0; gutter: true; html-script: false; light: false; ruler: false; smart-tabs: true; tab-size: 4; toolbar: true;">Require&lt;RebusScriptBus&gt;()
+    .ConfigureBus("MyMessageQueue")
+    .Send&lt;Message&gt;(new Message {Content = "Hello from custom type!"})</pre>
+<p>and</p>
+<pre class="brush: csharp; auto-links: true; collapse: false; first-line: 0; gutter: true; html-script: false; light: false; ruler: false; smart-tabs: true; tab-size: 4; toolbar: true;">Require&lt;RebusScriptBus&gt;()
+    .ConfigureBus("MyMessageQueue")
+    .Receive&lt;Messge&gt;(x =&gt; Console.WriteLine(x.Content))
+    .Start()</pre>
+<p>``</p>
+<p>This should output <code>From MyMessageQueue &gt; Hello from custom type</code>.</p>
+<h3><a href="https://github.com/madstt/ScriptCs.Rebus#multiple-handlers" name="user-content-multiple-handlers"></a>Multiple Handlers</h3>
+<p>In some cases you might be expecting to handle different kinds of messages. This can be achieved by adding multiple receive commands fluently:</p>
+<pre class="brush: csharp; auto-links: true; collapse: false; first-line: 1; gutter: true; html-script: false; light: false; ruler: false; smart-tabs: true; tab-size: 4; toolbar: true;">Require&lt;RebusScriptBus&gt;()
+    .ConfigureBus("MyMessageQueue")
+    .Receive&lt;string&gt;(x =&gt; Console.WriteLine(x))
+    .Receive&lt;Message&gt;(x =&gt; Console.WriteLine(x.Content))
+    .Start() </pre>
+<pre class="brush: csharp; auto-links: true; collapse: false; first-line: 1; gutter: true; html-script: false; light: false; ruler: false; smart-tabs: true; tab-size: 4; toolbar: true;"><br /></pre>
+<p>Applying multiple handlers of the same type, will give the possibility to handle message of the same type in different ways.</p>
+<h2>Future Directions</h2>
+<p>This is only the first revision of ScriptCs.Rebus, I’ll continue to explore new possibilities with building messaging infrastructure using scripts. I’ve got <a href="http://www.rabbitmq.com/">RabbitMQ</a> and <a href="http://msdn.microsoft.com/en-us/library/ee732537.aspx">Azure Service Bus</a> aligned in the pipeline.</p>
+<p>Get out there and try it out, throw me a comment or a pull request on <a href="https://github.com/madstt/ScriptCs.Rebus">GitHub</a>.</p>

@@ -1,0 +1,65 @@
+---
+layout: post
+title: ScriptCs.Rebus 0.3.0
+date: 2014-06-13 04:27:00.000000000 +02:00
+categories:
+- scriptcs
+- scriptcs.rebus
+tags: []
+status: publish
+type: post
+published: true
+meta: {}
+author:
+  login: admin
+  email: mads.toustrup@gmail.com
+  display_name: admin
+  first_name: ''
+  last_name: ''
+---
+<p>Currently,&#160; <a href="https://github.com/madstt/ScriptCs.Rebus">ScriptCS.Rebus</a> uses MSMQ as transport mechanism. In the latest release of ScriptCs.Rebus, I’ve included support for <a href="http://www.rabbitmq.com/">RabbitMQ</a> and console logging. </p>
+<p>RabbitMQ is a widely used and rock-solid messaging framework. In my original <a href="http://madstt.dk/introducing-scriptcs-rebus/">post</a>, I outlined how to get started using ScriptCs and ScriptCs.Rebus in particular, I’ll therefore urge the reader to read that post prior to this one. </p>
+<h2></h2>
+<h2>What’s New</h2>
+<p>Besides major refactorings and code clean-up, the two main features of 0.3.0 is support for RabbitMQ and console logging.</p>
+<h3>Support for RabbitMQ</h3>
+<p>I’ve been very trying to be very consistent with the original design, and therefore configuring ScriptCs.Rebus for RabbitMQ is very straightforward:</p>
+<pre class="brush: csharp; auto-links: true; collapse: false; first-line: 1; gutter: true; html-script: false; light: false; ruler: false; smart-tabs: true; tab-size: 4; toolbar: true;">Require&lt;RebusScriptBus&gt;()
+	.ConfigureRabbitBus(&quot;MyMessageQueue&quot;)
+	.Send&lt;string&gt;(&quot;Foo&quot;)<font face="Calibri"><br /></font></pre>
+<p>
+<p>This will configure the bus to use the default RabbitMQ port, amqp://localhost:5672, which requires a local server. This configuration is equivalent to using ScriptCs.Rebus with MSMQ, with additional RabbitMQ features. Usually, a remote server is used, and to supply a connectionstring, use the following configuration:</p>
+<pre class="brush: csharp; auto-links: true; collapse: false; first-line: 1; gutter: true; html-script: false; light: false; ruler: false; smart-tabs: true; tab-size: 4; toolbar: true;">Require&lt;RebusScriptBus&gt;()
+	.ConfigureRabbitBus(&quot;MyMessageQueue&quot;, &quot;amqp://remoteserver&quot;)
+	.Send&lt;string&gt;(&quot;Foo&quot;)<font face="Calibri"><br /></font></pre>
+<p>
+<p>With this configuration the message of type String will be sent to the remote server. Likewise when you to need receive messages from the remote server, configuration follow the same setup as of the one from MSMQ:</p>
+<pre class="brush: csharp; auto-links: true; collapse: false; first-line: 1; gutter: true; html-script: false; light: false; ruler: false; smart-tabs: true; tab-size: 4; toolbar: true;">Require&lt;RebusScriptBus&gt;()
+	.ConfigureRabbitBus(&quot;MyMessageQueue&quot;, &quot;ampq://remoteserver&quot;)
+	.Receive&lt;string&gt;(x =&gt; Console.WriteLine(x))
+	.Start()</pre>
+<p>
+<h3>Console Logging</h3>
+<p>Working with message busses can often be very complex and a blackbox. Since <a href="https://github.com/rebus-org/Rebus">Rebus</a> has a nice and very useful console logging, it makes so much sense to support this as an option for script authors. Console logging is available for both MSMQ and RabbitMQ busses. By default console logging is disabled. To enable console logging, just add UseLogging() to your configuration:</p>
+<pre class="brush: csharp; auto-links: true; collapse: false; first-line: 1; gutter: true; html-script: false; light: false; ruler: false; smart-tabs: true; tab-size: 4; toolbar: true;">Require&lt;RebusScriptBus&gt;()
+	.ConfigureBus(&quot;MyMessageQueue&quot;)
+	.UseLogging()
+	.Send&lt;string&gt;(&quot;Foo&quot;)</pre>
+<p>
+<p>Now console logging is enabled and will output some nice logging like this:</p>
+<div style="-ms-overflow-x: auto;">
+<pre class="brush: csharp; auto-links: true; collapse: false; first-line: 1; gutter: true; html-script: false; light: false; ruler: false; smart-tabs: true; tab-size: 4; toolbar: true;">Rebus.Configuration.RebusConfigurer DEBUG (): Defaulting to 'throwing endpoint mapper' - i.e. the bus will throw an exception when you send a message that is not explicitly routed
+Rebus.Configuration.RebusConfigurer DEBUG (): Defaulting to in-memory saga persister (should probably not be used for real)
+Rebus.Configuration.RebusConfigurer DEBUG (): Defaulting to in-memory subscription storage (should probably not be used for real)
+Rebus.Bus.RebusBus INFO (): Rebus bus 1 created
+Rebus.Bus.RebusBus INFO (): Using external timeout manager with input queue 'rebus.timeout'
+Rebus.Bus.RebusBus INFO (): Initializing bus with 1 workers
+Rebus.Bus.Worker INFO (): Worker Rebus 1 worker 1 created and inner thread started
+Rebus.Bus.Worker INFO (): Starting worker thread Rebus 1 worker 1
+Rebus.Bus.RebusBus INFO (): Bus started
+Sending message of type String...
+Rebus.Logging.MessageLogger DEBUG (): Sending Foo to MyMessageQueue
+... message sent.</pre>
+</div>
+<p>
+<p>That’s it for 0.3.0, get it, use it, and let me know what you think of it.</p>

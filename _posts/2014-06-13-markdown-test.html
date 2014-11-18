@@ -1,0 +1,116 @@
+---
+layout: post
+title: Markdown test
+date: 2014-06-13 13:09:23.000000000 +02:00
+categories: []
+tags: []
+status: draft
+type: post
+published: false
+meta:
+  _edit_last: '1'
+author:
+  login: admin
+  email: mads.toustrup@gmail.com
+  display_name: admin
+  first_name: ''
+  last_name: ''
+---
+<h1><a href="http://scriptcs.net/"><img src="assets/5c754f646971d8bc800b9d4057931938?s=200" alt="ScriptCs" /></a>.<a href="https://github.com/rebus-org/Rebus/"><img src="assets/logo400x150.png" alt="Bedford OB" /></a></h1>
+<h2>What is it?</h2>
+<p>A <a href="https://github.com/scriptcs/scriptcs">ScriptCs</a> script pack for <a href="https://github.com/rebus-org/Rebus">Rebus</a>.</p>
+<p>Wouldn't it just be nice if those lovely scripts of yours could talk to other scripts? You're up for a treat. With this script pack, it is possible to write scripts that can communicate via messaging to other scripts.</p>
+<p>Get it on <a href="https://www.nuget.org/packages/ScriptCs.Rebus">Nuget</a>.</p>
+<h2>Installation</h2>
+<p>Prior to using this script pack you need to <a href="https://github.com/scriptcs/scriptcs#getting-scriptcs">install ScriptCs</a>. Then open a command prompt as administrator. Now create a folder for the scripted messaging project. Navigate to this folder and install the Nuget package by running this command:</p>
+<pre><code>scriptcs -install ScriptCs.Rebus
+</code></pre>
+<p>You're now ready to do some serious scripted messaging.</p>
+<h2>Basic Usage from REPL</h2>
+<p>To enter the REPL, run <code>scriptcs</code>. Send a message of type string to MyMessageQueue:</p>
+<pre><code>Require&lt;RebusScriptBus&gt;()
+    .ConfigureBus("MyMessageQueue")
+    .Send&lt;string&gt;("My first scripted message!")
+</code></pre>
+<p>Now open another command prompt or use the same, and enter the following to receive the message of type string from MyMessageQueue:</p>
+<pre><code>Require&lt;RebusScriptBus&gt;()
+    .ConfigureBus("MyMessageQueue")
+    .Receive&lt;string&gt;(x =&gt; Console.WriteLine(x))
+    .Start()
+</code></pre>
+<p>The command prompt should output the following:</p>
+<pre><code>&gt; My first scripted message!
+</code></pre>
+<h3>Using RabbitMQ</h3>
+<p>By default ScriptCs.Rebus uses MSMQ as transport layer, but it is possible to use RabbitMQ instead. This is done by configuring the bus like this:</p>
+<pre><code>Require&lt;RebusScriptBus&gt;()
+    .ConfigureRabbitBus("MyMessageQueue")
+    .Send&lt;string&gt;("Message from RabbitMQ")
+</code></pre>
+<p>This would use a local RabbitMQ instance and the default RabbitMQ port, <code>ampq://localhost:5672</code>. To use another port or a remote server, you can supply a connectionstring like this:</p>
+<pre><code>Require&lt;RebusScriptBus&gt;()
+    .ConfigureRabbitBus("MyMessageQueue", "ampq://remoteserver")
+    .Send&lt;string&gt;("Message from RabbitMQ")
+</code></pre>
+<h2>Basic Usage from Script</h2>
+<p>The examples from above apply to scripts. Put the send and receive code into two <code>.csx</code> files, lets call them <code>send.csx</code> and <code>receive.csx</code>, and execute them by typing the following from a command prompt:</p>
+<pre><code>scriptcs send.csx
+</code></pre>
+<p>and</p>
+<pre><code>scriptcs receive.csx
+</code></pre>
+<p>In the <a href="https://github.com/madstt/ScriptCs.Rebus/tree/master/samples"><code>\samples</code></a> folder there is some samples to get you started.</p>
+<h2>Advanced Usage</h2>
+<p>At this point you should be able to apply these more advanced usages to both the REPL and from scripts.</p>
+<h3>Custom Types</h3>
+<p>It is possible to use custom types in your messages. Consider the following class:</p>
+<pre><code>public class Message
+{
+    public string Content { get; set; }
+}
+</code></pre>
+<p>You enter this class definition in the REPL or create a <code>message.csx</code> script file. If defined in a script file, load this class definition into your script by using <code>#load</code> keyword,</p>
+<pre><code>#load "message.csx"
+</code></pre>
+<p>Now you can send and receive messages of this type by using the following syntax:</p>
+<pre><code>Require&lt;RebusScriptBus&gt;()
+    .ConfigureBus("MyMessageQueue")
+    .Send&lt;Message&gt;(new Message {Content = "Hello from custom type!"})
+</code></pre>
+<p>and</p>
+<pre><code>Require&lt;RebusScriptBus&gt;()
+    .ConfigureBus("MyMessageQueue")
+    .Receive&lt;Message&gt;(x =&gt; Console.WriteLine(x.Content))
+    .Start()
+</code></pre>
+<p>This should output <code>&gt; From MyMessageQueue &gt; Hello from custom type</code>.</p>
+<h3>Multiple Handlers</h3>
+<p>In some cases you might be expecting to handle different kinds of messages. This can be achieved by adding multiple receive commands fluently:</p>
+<pre><code>Require&lt;RebusScriptBus&gt;()
+    .ConfigureBus("MyMessageQueue")
+    .Receive&lt;string&gt;(x =&gt; Console.WriteLine(x))
+    .Receive&lt;Message&gt;(x =&gt; Console.WriteLine(x.Content))
+    .Start()
+</code></pre>
+<p>Applying multiple handlers of the same type, will give the possibility to handle message of the same type in different ways.</p>
+<h3>Using Console Logging</h3>
+<p>Working with messaging and message buses can often be a very complex task. It can therefore be of great help to supply the script author with some additional information about what's going on. Rebus has some very nice console logging features, which is made available in ScriptCs.Rebus by adding <code>.UseLogging()</code> to your scripts:</p>
+<pre><code>Require&lt;RebusScriptBus&gt;()
+    .ConfigureBus("MyMessageQueue")
+    .UseLogging()   
+    .Send
+</code></pre>
+<p>This will produce an output like this:</p>
+<pre><code>Rebus.Configuration.RebusConfigurer DEBUG (): Defaulting to 'throwing endpoint mapper' - i.e. the bus will throw an exception when you send a message that is not explicitly routed
+Rebus.Configuration.RebusConfigurer DEBUG (): Defaulting to in-memory saga persister (should probably not be used for real)
+Rebus.Configuration.RebusConfigurer DEBUG (): Defaulting to in-memory subscription storage (should probably not be used for real)
+Rebus.Bus.RebusBus INFO (): Rebus bus 1 created
+Rebus.Bus.RebusBus INFO (): Using external timeout manager with input queue 'rebus.timeout'
+Rebus.Bus.RebusBus INFO (): Initializing bus with 1 workers
+Rebus.Bus.Worker INFO (): Worker Rebus 1 worker 1 created and inner thread started
+Rebus.Bus.Worker INFO (): Starting worker thread Rebus 1 worker 1
+Rebus.Bus.RebusBus INFO (): Bus started
+Sending message of type String...
+Rebus.Logging.MessageLogger DEBUG (): Sending Foo to MyMessageQueue
+... message sent.
+</code></pre>

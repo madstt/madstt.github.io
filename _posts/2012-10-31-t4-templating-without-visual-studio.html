@@ -1,0 +1,57 @@
+---
+layout: post
+title: T4 Templating without Visual Studio
+date: 2012-10-31 09:52:32.000000000 +01:00
+categories:
+- Visual Studio
+tags: []
+status: publish
+type: post
+published: true
+meta: {}
+author:
+  login: admin
+  email: mads.toustrup@gmail.com
+  display_name: admin
+  first_name: ''
+  last_name: ''
+---
+<p>I’m currently appointed to an older project to make some new features. I soon realized that this project is developed in a pre-Nuget era, so all dependencies were copied into a 3rd party folder and included in source control. The entire solution includes 29 projects, so there were a larger number of dependencies to this solution. I decided to get rid of all the dependencies that is available on Nuget. These included <a href="http://nuget.org/packages/nhibernate">NHibernate</a>, <a href="http://nuget.org/packages/MvvmLight">MVVM Light</a>, <a href="http://nuget.org/packages/log4net">log4net</a>, <a href="http://nuget.org/packages/Castle.Windsor">Castle Windsor</a>, <a href="http://nuget.org/packages/AutoMapper/2.2.0">Auto Mapper</a>, <a href="http://nuget.org/packages/RhinoMocks">Rhino Mocks</a>, <a href="http://nuget.org/packages/NUnit">NUnit</a>, and the <a href="http://nuget.org/packages/SilverlightToolkit-Input">Silverlight Toolkit</a>. I noticed that the Silverlight Toolkit is available as individual components, instead of just installing them all. It took a few hours to get all dependencies to work across the solution, but pretty trivial. Besides these dependencies, there was a dependency to Texttransform.exe. </p>
+<h2>T4 Templating and Visual Studio</h2>
+<p>Texttransform.exe is part of T4 templating and is installed together with Visual Studio. In this case a developer has copied the Texttransform.exe from the its default installation path in \Program Files (x86)\Common Files\Microsoft Shared\Text Templating\ to the 3rd party folder in the solution folder. The problem with this approach is that the version in the solution folder is the Visual Studio 2010 version. Running Texttransform.exe from Visual Studio 2012, provides an error. I therefore removed the copy from the solution folder and wrote a relative path in the pre-build event to the default installation. </p>
+<p><font face="Courier New">"%COMMONPROGRAMFILES(x86)%\Microsoft Shared\TextTemplating\$(VisualStudioVersion)\texttransform.exe"</font></p>
+<p>The $(VisualStudioVersion) variable provides the current version of Visual Studio, so this approach works on both Visual Studio 2010 and Visual Studio 2012.</p>
+<p>I’m not going to cover T4 templating in detail in this post, but I recommend reading <a href="http://www.hanselman.com/blog/T4TextTemplateTransformationToolkitCodeGenerationBestKeptVisualStudioSecret.aspx">Scott Hanselman’s post</a> on this issue. Basically, T4 is code generation. It can generate all kinds of text files, not just code. </p>
+<p>Since T4 is installed together with Visual Studio, it gives us quite a challenge to get this to work with Team Foundation Server (TFS) (which is the management decision of source control at my current employer), since the $(VisualStudioVersion) variable is not present on the build server.</p>
+<h1>T4 Templating and Team Foundation Server</h1>
+<p>To get the necessary dlls I needed to install the <a href="http://www.microsoft.com/en-us/download/details.aspx?id=30668">Visual Studio SDK 2012</a> on my development machine and the copy the following files to the build server:</p>
+<ul>
+<li>\Program Files (x86)\Microsoft Visual Studio 11.0\VSSDK\VisualStudioIntegration\Common\Assemblies\v4.0\
+<ul>
+<li>Microsoft.VisualStudio.TextTemplating.11.0.dll  </li>
+<li>Microsoft.VisualStudio.TextTemplating.Interfaces.11.0.dll  </li>
+<li>Microsoft.VisualStudio.TextTemplating.VSHost.11.0.dll</li>
+</ul>
+</li>
+<li>\Program Files(x86)\MSBuild\Microsoft\VisualStudio\v11.0\TextTemplating\
+<ul>
+<li>Microsoft.VisualStudio.TextTemplating.Sdk.Host.11.0.dll</li>
+</ul>
+</li>
+<li>\Program Files(x86)\Microsoft Visual Studio 11.0\Common7\IDE\PublicAssemblies\
+<ul>
+<li>Microsoft.VisualStudio.TextTemplating.Modeling.11.0.dll</li>
+</ul>
+</li>
+<li>\Program Files(x86)\Common Files\microsoft shared\TextTemplating\11.0\
+<ul>
+<li>TextTransform.exe  </li>
+<li>TextTransform.ico</li>
+</ul>
+</li>
+</ul>
+<p>It is important to keep the same directory hierarchy. Due to these issues with T4 Templating and TFS, Microsoft has changed their EULA for Visual Studio making it license-wise legal to copy the files to a build server.</p>
+<p>Without making too much custom TFS handling of this, I going to the send the VisualStudioVersion variable, mentioned above, to the TFS from Visual Studio through a MSBuild argument. This is done in your Build Definition, under the Process tab, like this:</p>
+<p><a href="http://madstt.dk/wp-content/uploads/2012/10/image.png"><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px; padding-top: 0px" title="image" border="0" alt="image" src="assets/image_thumb.png" width="569" height="145" /></a></p>
+<p>Now TFS is able to find texttransform.exe and do the T4 templating.</p>
+<p>Instead of this kind of hack, MSBuild ought to support T4 templating natively. Like MSBuild is able to perform configuration transformations, it should support T4 templating as well.</p>

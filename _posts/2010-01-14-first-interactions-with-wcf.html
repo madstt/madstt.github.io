@@ -1,0 +1,31 @@
+---
+layout: post
+title: First Interactions with WCF
+date: 2010-01-14 08:51:48.000000000 +01:00
+categories:
+- .Net framework
+- WCF
+tags: []
+status: draft
+type: post
+published: false
+meta:
+  _edit_last: '1'
+author:
+  login: admin
+  email: mads.toustrup@gmail.com
+  display_name: admin
+  first_name: ''
+  last_name: ''
+---
+<p>Since the inclusion of <a href="http://en.wikipedia.org/wiki/Windows_Presentation_Foundation">Windows Presentation Foundation</a> (WPF), <a href="http://en.wikipedia.org/wiki/Windows_Communication_Foundation">Windows Communication Foundation</a> (WCF), and <a href="http://en.wikipedia.org/wiki/Windows_Workflow_Foundation">Windows Workflow Foundation</a> (WF) into .Net 3.0, I have eagerly been awaiting an oppotunity to work with these. Working as part of a portal team at my current job position I have extensive experience in consuming web services. I have worked with both RESTful and SOAP based web services. The server-side of the story has always been out of my domain - until this week.</p>
+<p>At the current project we have a C++ component, codenamed Mercury, which consumes a SOAP based web service from an external provider. It is both expensive and time consuming to start development at external partners, therefore we decided to develop our own sandbox web services. These web services should provide the same API as those from the external partner. This will allow the customers of Mercury to be unaware of whether they are interacting with the external partner or our sandbox (This is not completely true, since the developers have to configure which service to use). Other advantages of developing our own web services is that we can setup a bandwidth limiter, see how Mercury handles loss of connection, what happens when the web services are unavailable, we can test credentials and SSL, etc.</p>
+<p>We decided on using WCF at server-side. Let's be honest, it is extremely easy. First of is to start a new project in Visual Studio. Here we chose a WCF Service Library.  We then declare a public interface with a 'ServiceContract' attribute</p>
+<pre>[ServiceContract (Name = "SandboxService")]</pre>
+<pre>public interface ISandboxService</pre>
+<pre>{</pre>
+<pre>}</pre>
+<p>The ServiceContract attribute defines a service contract in WCF for this interface. On declaring the methods in the interface we attach the 'OperationContract' attribute to each of them:</p>
+<pre>[OperationContract]</pre>
+<pre>void GetString(string s);</pre>
+<p>The OperationContract attribute defines that this operation is part of a service contract.</p>

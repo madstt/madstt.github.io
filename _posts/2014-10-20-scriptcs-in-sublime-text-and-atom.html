@@ -1,0 +1,48 @@
+---
+layout: post
+title: scriptcs in Sublime Text and Atom
+date: 2014-10-20 04:38:37.000000000 +02:00
+categories:
+- scriptcs
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+author:
+  login: admin
+  email: mads.toustrup@gmail.com
+  display_name: admin
+  first_name: ''
+  last_name: ''
+---
+<p>I really love the REPL in <a href="http://scriptcs.net">scriptcs</a>, and feel comfortable using it. But sometimes, when writing larger scripts its just not a suitable tool. Then it is good that there are other, still lightweight, options out there.</p>
+<p>In this post I'll show you how to setup <a href="https://sublimetext.com/">Sublime Text</a> and <a href="https://atom.io/">Atom</a> to use scriptcs for script execution.</p>
+<h2>Sublime Text</h2>
+<p>Sublime Text has been my favorite text editor for a while, and I use every occasion I get to give it a shout, and hopefully I can convince more people to use it.</p>
+<p>To setup using scriptcs in Sublime Text, you need to install the scriptcs plugin. This is done using the great Sublime Package Manager. The Sublime Package Manager is in it self an addon. So open the Sublime Text console, using <code>Ctrl+´</code>, and run <a href="https://sublime.wbond.net/installation">this Powershell script</a>. When you have installed the Sublime Package Manager, open it by using the <code>Ctrl+Shift+P</code>, type <code>install</code> and choose <code>Package Control: Install Package</code>. Now the repositories will be refreshed. Once ready, a dialog will list all available packages. Then type <code>scriptcs</code>, and press <code>enter</code>. The scriptcs package will now be installed.</p>
+<p>When installed, all <code>.csx</code>-files will now have text highlighting and you can execute your scripts by pressing <code>Ctrl+B</code>.</p>
+<h3>SublimeREPL</h3>
+<p>I neat feature that Sublime Text has and which, not to my knowledge, Atom does not have is <a href="https://github.com/wuub/SublimeREPL">SublimeRepl</a> or rather an alternative. SublimeREPL is a Sublime Text package which adds a REPL inside Sublime. This REPL is highly configurable, and can run an interpreter inside Sublime, including scriptcs. Again, open the Sublime Package Manager, using <code>Ctrl+Shift+P</code>, type <code>install</code> and chose <code>Package Control: Install Package</code>. Find <code>SublimeREPL</code> in the list and install it.</p>
+<p>When installation is done, you can find the scriptcs REPL in <code>Tools -&gt; SublimeREPL -&gt; ScriptCS</code>.</p>
+<h2>Atom</h2>
+<p>The new kid on the block. It is a bit more cumbersome to get scriptcs set up in Atom. Firstly, you need to install the Atom Runner. You would either go through the Atom Package Manager GUI, which is found in the Settings tab (<code>Ctrl-,</code>) or take it from the command line like this</p>
+<pre><code>apm install atom-runner
+</code></pre>
+<p>To get C# highlighting in your scripts you'd also have to add an additional package</p>
+<pre><code>apm install language-csharp
+</code></pre>
+<p>Now we need to associate Atom with the <code>.csx</code> file extension. Open you local config file</p>
+<pre><code>Ctrl+Shift+P
+</code></pre>
+<p>This open the config file. Add the following to the config file</p>
+<pre><code>'runner':  
+    'extensions':
+        'csx': 'scriptcs'
+</code></pre>
+<p>Save the file using <code>Ctrl+S</code>. Now you can write your scripts, save them with the <code>.csx</code> file extension and run them using the Atom Runner</p>
+<pre><code>Ctrl+Shift+P
+</code></pre>
+<p>Press 'R' and select <code>Runner: Run</code>.</p>
+<p>I hope this can help someone getting started using scriptcs. Throw a comment, or give me a shout on <a href="https://twitter.com/madstt">Twitter</a>.</p>

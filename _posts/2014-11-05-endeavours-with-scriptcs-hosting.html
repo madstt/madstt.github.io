@@ -1,0 +1,199 @@
+---
+layout: post
+title: Endeavours With scriptcs.hosting
+date: 2014-11-05 05:16:09.000000000 +01:00
+categories:
+- scriptcs
+- scriptcs.rebus
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+author:
+  login: admin
+  email: mads.toustrup@gmail.com
+  display_name: admin
+  first_name: ''
+  last_name: ''
+---
+<p>One of the most promising perspectives in scriptcs, in my opinion, is hosting. Basically hosting is the complete package of scriptcs, just put inside your own application. It can be pretty mind blowing to think about this. Hosting makes it possible execute C# scripts inside of any standard .Net application.</p>
+<p>With my scriptcs.rebus project, I wanted to add a feature, which would use scriptcs.hosting for executing scripts inside of a host. The script was supposed to be send over either MSMQ, RabbitMQ, or Azure Service Bus. When the host received the script it would be executed. It should also be possible to added NuGet references, local dependencies, and import namespaces to be used by the script.</p>
+<p>I had read the excellent blog post by Filip Wojcieszyn on <a href="http://www.strathweb.com/2013/10/extend-glimpse-fly-scriptcs-code-execution-tab-glimpse/">extending Glimpse using scriptcs</a>. This blog post gives a small hint on the perspectives for scriptcs hosting. When I came up the idea of combining scriptcs hosting with messaging, I had a <a href="https://jabbr.net/#/rooms/scriptcs">Jabbr</a> session with <a href="http://twitter.com/gblock">Glenn Block</a>, who guided me in the right direction.</p>
+<p>The end of the session with Glenn, was that all I needed to do was reference <code>scriptcs.hosting</code>, and I should be given all the dependencies needed.</p>
+<h2>Initial Attempt</h2>
+<p>I started looking into how the internals of scriptcs is working, and how hosting in particular is working. I soon realized that there is a number of different dependencies at work, and quickly came up with idea of using <a href="http://autofac.org/">AutoFac</a>, which is also used inside of scriptcs hosting. I wrote a rather nice script module, on which I registered all my dependencies from <code>scriptcs.hosting</code>.</p>
+<p>This script module would be registered in my <code>ScriptHandler</code>. The ScriptHandler subscribes to messages of type <code>Script</code>:</p>
+<pre><code>public class ScriptHandler : IHandleMessages&lt;Script&gt;
+{
+    public void Handle(Script message)
+    {
+        var builder = new ContainerBuilder();
+
+        builder.RegisterModule(new ScriptModule());
+
+        using (var container = builder.Build())
+        {
+            using (var scope = container.BeginLifetimeScope())
+            {
+                var logger = scope.Resolve&lt;ILog&gt;();
+                var executor = scope.Resolve&lt;ScriptExecutor&gt;();
+                scope.Resolve&lt;IInstallationProvider&gt;().Initialize();
+
+                try
+                {
+                    executor.Execute(message.ScriptContent, message.Dependencies);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex);
+                    throw;
+                }
+            }
+        }
+    }
+}
+</code></pre>
+<p>So upon receiving a script, the script module is registered, and I can resolve the logger and <code>ScriptExecutor</code>. I thought this was a pretty cool setup.</p>
+<p>For completeness my <code>ScriptExecutor</code> would look like this:</p>
+<pre><code> public class ScriptExecutor
+ {
+    private readonly ILog _logger;
+    private readonly IFileSystem _fileSystem;
+    private readonly IPackageAssemblyResolver _packageAssemblyResolver;
+    private readonly IPackageInstaller _packageInstaller;
+    private readonly IScriptPackResolver _scriptPackResolver;
+    private readonly IScriptExecutor _scriptExecutor;
+
+    public ScriptExecutor(ILog logger, IFileSystem fileSystem,
+                        IPackageAssemblyResolver packageAssemblyResolver,
+                        IPackageInstaller packageInstaller, IScriptPackResolver scriptPackResolver,
+                        IScriptExecutor scriptExecutor)
+    {
+        _logger = logger;
+        _fileSystem = fileSystem;
+        _packageAssemblyResolver = packageAssemblyResolver;
+        _packageInstaller = packageInstaller;
+        _scriptPackResolver = scriptPackResolver;
+        _scriptExecutor = scriptExecutor;
+    }
+
+    public void Execute(string script, string[] dependencies)
+    {
+        // set current dicrectory, import for NuGet.
+        Environment.CurrentDirectory = AppDomain.CurrentDomain.BaseDirectory;
+
+        // prepare NuGet dependencies, download them if required
+        var nuGetReferences = PreparePackages(_fileSystem, _packageAssemblyResolver,
+                                        _packageInstaller, PrepareAdditionalPackages(dependencies));
+
+        // get script packs: not fully tested yet        
+        var scriptPacks = _scriptPackResolver.GetPacks();
+
+        // execute script from file
+        _scriptExecutor.Initialize(nuGetReferences, scriptPacks);
+        var scriptResult = _scriptExecutor.ExecuteScript(script);
+        if (scriptResult != null)
+            if (scriptResult.CompileExceptionInfo != null)
+                if (scriptResult.CompileExceptionInfo.SourceException != null)
+                    _logger.Debug(scriptResult.CompileExceptionInfo.SourceException.Message);
+    }
+
+    private IEnumerable&lt;IPackageReference&gt; PrepareAdditionalPackages(string[] dependencies)
+    {
+        return from dep in dependencies
+            select new PackageReference(dep, new FrameworkName(".NETFramework,Version=v4.0"), string.Empty);
+    }
+
+    // prepare NuGet dependencies, download them if required
+    private static IEnumerable&lt;string&gt; PreparePackages(IFileSystem fileSystem, IPackageAssemblyResolver packageAssemblyResolver,
+                            IPackageInstaller packageInstaller, IEnumerable&lt;IPackageReference&gt; additionalReferences)
+    {
+        var workingDirectory = Environment.CurrentDirectory;
+
+        var packages = packageAssemblyResolver.GetPackages(workingDirectory);
+        packages = packages.Concat(additionalReferences);
+
+        packageInstaller.InstallPackages(
+                            packages,
+                            allowPreRelease: true);
+
+        return packageAssemblyResolver.GetAssemblyNames(workingDirectory);
+    }
+
+}
+</code></pre>
+<p>The <code>Execute()</code> method will take the script to be executed and a number NuGet dependencies. Setting the <code>Environment.CurrentDirectory</code> is required for NuGet to be able to determine which packages are already installed, and where to download and install the new ones. The <code>PreparePacakages()</code> method will download and install NuGet packages, if they are not already installed. If there is any script packs installed, they'll be referenced, using the <code>ScriptPackResolver</code>. The <code>ScriptExecutor</code> is initialized with the NuGet references and the script packs. <code>ExecuteScript()</code> is called on the <code>ScriptExecutor</code>. The result is verified and logged if relevant.</p>
+<p>This is solution that I released in version <a href="https://github.com/scriptcs-contrib/scriptcs-rebus/releases/tag/0.4.0">0&#46;4.0</a>. Despite missing a few essential scriptcs.hosting features, like importing namespaces and reference local dependencies, I decided to release it anyway.</p>
+<p>On of the key features of the upcoming 0.5.0 release is Mono support. I'd like to add the options to use the Mono compiler inside of the hosting pieces. During this work I ran into an issue with the way I wired up my dependencies. It was rather trivial to set an option for using the Mono compiler, and then replace it with the dependency to Roslyn. It worked so far that I could compile plain C#, just like the Roslyn compiler, but if I wanted to compile C# with some features that is not supported by Roslyn yet, like <code>dynamic</code> or <code>async/await</code>, the Mono compiler would throw me an error. At first I was convinced that this must be a scriptcs bug, and there called out for help in the scriptcs community. Once again, I got in contact with Glenn Block. So, one morning, we toke a one-to-one on Skype, were I showed Glenn my code and put him into my mindset of what I'd like to achieve. Glenn is a nice guy, so he said, this cool, but you're doing it wrong. So with Glenn looking me over my shoulder, I re-implemented the <code>Execute()</code> of my <code>ScriptExecutor</code>.</p>
+<h2>Actual Approach</h2>
+<p>Glenn told me that all my wiring using AutoFac wasn't necessary, there is already a built-in helper class for that. It's called <code>ScriptServicesBuilder</code>. What ScriptServicesBuilder does is wire up the dependencies for you. It then serves you a <code>ScriptServices</code> instance, which makes it trivial to override the dependencies.</p>
+<p>I therefore added a small method to my <code>ScriptExecutor</code> class, which I borrowed some pieces from <strong>here</strong>:</p>
+<pre><code>private ScriptServices CreateScriptServices(bool useMono, bool useLogging)
+{
+    var console = new ScriptConsole();
+    var configurator = new LoggerConfigurator(useLogging ? LogLevel.Debug : LogLevel.Info);
+    configurator.Configure(console);
+    var logger = configurator.GetLogger();
+    var builder = new ScriptServicesBuilder(console, logger);
+
+    if (useMono)
+    {
+        builder.ScriptEngine&lt;MonoScriptEngine&gt;();
+    }
+    else
+    {
+        builder.ScriptEngine&lt;RoslynScriptEngine&gt;();
+    }
+
+    builder.FileSystem&lt;ScriptFileSystem&gt;();
+    return builder.Build();
+}
+</code></pre>
+<p>I do some configuration of the console and the logger. The log level is set depending on whether the user would like some debugging output. Whether the user would like to use the Mono compiler, I override the <code>ScriptEngine</code>. Finally, I override the logical file system, which scriptcs uses as its environment. I override it with this:</p>
+<pre><code>/// &lt;summary&gt;
+/// By default, the scriptcs.hosting inspects the bin folder for references.
+/// &lt;/summary&gt;
+public class ScriptFileSystem : FileSystem
+{
+    public override string BinFolder
+    {
+        get { return AppDomain.CurrentDomain.BaseDirectory; }
+    }
+}
+</code></pre>
+<p>All this customization does is that it tells scriptcs that my dependencies are located in the same folder as the script is executed. Otherwise, I'd have to copy all my dependencies over to a <code>\bin</code> folder.</p>
+<p>So after some iterations my <code>Execute()</code> method, ended up like this:</p>
+<pre><code>public void Execute(Script script)
+{
+    // set current dicrectory, import for NuGet.
+    Environment.CurrentDirectory = AppDomain.CurrentDomain.BaseDirectory;
+
+    var services = CreateScriptServices(script.UseMono, script.UseLogging);
+    var scriptExecutor = services.Executor;
+    var scriptPackResolver = services.ScriptPackResolver;
+    services.InstallationProvider.Initialize();
+
+    // prepare NuGet dependencies, download them if required
+    var assemblyPaths = PreparePackages(services.PackageAssemblyResolver,
+        services.PackageInstaller, PrepareAdditionalPackages(script.NuGetDependencies), script.LocalDependencies, services.Logger);
+
+    scriptExecutor.Initialize(assemblyPaths, scriptPackResolver.GetPacks());
+    scriptExecutor.ImportNamespaces(script.Namespaces);
+    scriptExecutor.AddReferences(script.LocalDependencies);
+
+    var scriptResult = scriptExecutor.ExecuteScript(script.ScriptContent, string.Empty);
+
+    if (script.UseLogging &amp;&amp; scriptResult != null)
+        if (scriptResult.CompileExceptionInfo != null)
+            if (scriptResult.CompileExceptionInfo.SourceException != null)
+                services.Logger.Debug(scriptResult.CompileExceptionInfo.SourceException.Message);
+    scriptExecutor.Terminate();
+}
+</code></pre>
+<p>I get the scriptcs dependencies wired up and served with <code>CreateScriptServices()</code>. I pull out the <code>ScriptExecutor</code> and the <code>ScriptPackResolver</code>. One, important step, is to initialize the <code>InstallationProvider</code>. In my case, the <code>InstallationProvider</code> is a <code>NuGetInstallationProvider</code>. If you forget to initialize you are given a <code>ArgumentNullException</code> if you try to download a NuGet package with the <code>PackageInstaller</code>. I still have my <code>PreparePackages()</code> which looks like <strong>this</strong>. The functionality is the same, I just added some more logging and error handling.</p>
+<p>I then initialize the <code>ScriptExecutor</code> with the path to the assemblies, and the resolved script packs. I import additional namespaces and adds a reference to some local assemblies if necessary.</p>
+<p>Finally, I call <code>ExecuteScript()</code> on the <code>ScriptExecutor</code>. If we're using logging, the result, errors or exceptions are sent to the console.</p>
+<p>My <code>Execute()</code> method now holds a lot more code, than in my initial attempt, but on the other hand I can save a bunch of code and complexity with this solution.</p>
+<p>This, final solution, is how it is implemented in the upcoming scriptcs.rebus 0.5.0.</p>

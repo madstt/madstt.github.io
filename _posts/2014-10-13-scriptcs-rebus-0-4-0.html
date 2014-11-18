@@ -1,0 +1,86 @@
+---
+layout: post
+title: ScriptCs.Rebus 0.4.0
+date: 2014-10-13 04:59:09.000000000 +02:00
+categories:
+- scriptcs
+- scriptcs.rebus
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+author:
+  login: admin
+  email: mads.toustrup@gmail.com
+  display_name: admin
+  first_name: ''
+  last_name: ''
+---
+<p>The last month or so I've been busy on putting the pieces together for the latest release of ScriptCs.Rebus. I'm very proud of what I managed to put into this release.</p>
+<p>This is the fourth release of my little scripting tool, and this post will focus on what's new in version 0.4.0, so if your new to ScriptCs.Rebus, I urge you to read my other <a href="http://madstt.dk/category/scriptcs/scriptcs-rebus/">posts</a>.</p>
+<h2>What's New</h2>
+<p>Some minor bug fixes, the major features of this release is support for Azure Service Bus and scripted host execution.</p>
+<p>One other major change in this release is that I've split ScriptCs.Rebus into separate dependencies. This will be a breaking change for existing users, and you have my apologies for that. When adding Azure Service Bus, it occurred to me that it didn't make sense to distribute ScriptCs.Rebus with dependencies for all transport options, when you're only using a single one. So therefore from version 0.4.0 ScriptCs.Rebus spans the following NuGet packages:</p>
+<pre><code>- ScriptCs.Rebus
+- ScriptCs.Rebus.RabbitMQ
+- ScriptCs.Rebus.AzureServiceBus
+- ScriptCs.Rebus.Hosting
+</code></pre>
+<h3>Support for Azure Service Bus</h3>
+<p>To get started using Azure Service Bus, you need to install the script pack:</p>
+<pre><code>scriptcs -install ScriptCs.Rebus.AzureServiceBus
+</code></pre>
+<p>And you would also need to create a service bus on Azure.</p>
+<p>As the addition of RabbitMQ in version 0.3.0, I've continued the original design for configuration:</p>
+<pre><code>Require&lt;RebusScriptBus&gt;()
+    .ConfigureAzureBus("MyMessageQueue", "Endpoint=sb://someConnectionString")
+    .Send&lt;string&gt;("Hello from Azure Service Bus")
+</code></pre>
+<p>A message containing a string is now sent to the Azure service bus specified in the connection string, and added to the queue given in the first parameter. The connectionstring must be the connectionstring of the service bus, and not the actual queue. Receiving a message follows the design of the MSMQ and RabbitMQ:</p>
+<pre><code>Require&lt;RebusScriptBus&gt;()
+    .ConfigureAzureBus("MyMessageQueue", "Endpoint=sb://someConnectionString")
+    .Receive&lt;string&gt;(x =&gt; Console.WriteLine(x))
+    .Start()
+</code></pre>
+<h3>Hosting</h3>
+<p>Now this a feature I'm really proud of. Hosting is a vital, yet powerful feature in <code>ScriptCs</code>. The idea is that you can host <code>ScriptCs</code> inside any standard .Net application and that way execute code inside the host. This gave me the idea to create a <code>ScriptCs.Rebus</code> hosting feature for executing scripts received over any of the support buses. I have been playing around with <code>ScriptCs.Hosting</code> before, but was pretty unsure were to start. I therefore got in contact with Glenn Block, with whom I had some discussions over the idea. The result is <code>ScriptCs.Rebus.Hosting</code>.</p>
+<p>First of you need to reference the NuGet package from your application. Go to the package manager console:</p>
+<pre><code> install-package ScriptCs.Rebus.Hosting
+</code></pre>
+<p>This will provide with a number of dependencies, but in essence it is the complete ScriptCs that you now have a reference to and can use to execute C# code. The pieces that ScriptCs.Rebus.Hosting delivers is a message handler capable of executing a script. It can even download and reference extra NuGet packages required by your script. I now this sounds strange and complex, but I believe I've developed a rather simple and powerful implementation.</p>
+<p>There are two options to go for when you wanna execute scripts, received over any supported bus technology using Rebus, in your application.</p>
+<h4>Existing Rebus Infrastructure</h4>
+<p>If your application is already using one of the supported bus technologies with Rebus, just hook in the supplied message handler. How this is done, depends on how you have configured Rebus. But the <code>ScriptHandler</code> class implements the standard <code>IHandleMessages&lt;T&gt;</code> interface in Rebus. So all you need to do is register the message handler to the DI container you have configured for Rebus in your application.</p>
+<h4>No Rebus Infrastructure</h4>
+<p>If your application does not use any bus infrastructure and you would like to extend its functionality using scripts, you can get going using the following simple configuration:</p>
+<pre><code>var bus = new MsmqBus("MyMessageQueue");
+bus.Container.Register(() =&gt; new ScriptHandler());
+bus.Start();
+</code></pre>
+<p>That's it! Your application is now ready to receive scripts send over MSMQ. It is advisable to configure the bus in a bootstrapper or application entry point. The <code>Start()</code> can be deferred to other parts of the application.</p>
+<p>Should you wanna go for RabbitMQ or Azure Service Bus, just change the first line. See the <a href="https://github.com/madstt/ScriptCs.Rebus">README</a>. When using RabbitMQ or Azure Service Bus, you would need to reference either the <code>ScriptCs.Rebus.RabbitMQ</code> or <code>ScriptCs.Rebus.AzureServiceBus</code> script packs as well.</p>
+<h4>Sending A Script</h4>
+<p>Now that you have a script-aware application, lets start sending some scripts. You can send scripts from the source of your choice. You can go simple and send it from the <code>ScriptCs</code> REPL:</p>
+<pre><code>Require&lt;RebusScriptBus&gt;()
+    .ConfigureBus("MyMessageQueue")
+    .SendAScript("Console.WriteLine(\"Hello from the REPL!\")")
+</code></pre>
+<p>This would send this simple script to the host, which would then execute this. If the bus is not started in the hosting application, the script will wait in the queue, and be executed when the bus is started. Standard messaging stuff. You can also send a script from another application:</p>
+<pre><code>var bus = new MsmqBus("MyMessageQueue")
+bus.SendAScript("Console.WriteLine(\"Hello from other application!\")")
+</code></pre>
+<p>Sometimes you just don't wanna write your scripts in the REPL or inline in the sending application. You can therefore create a script file, in your favorite editor, and send it for execution in the host. From the REPL this would look like this:</p>
+<pre><code>Require&lt;RebusScriptBus&gt;()
+    .ConfigureBus("MyMessageQueue")
+    .SendAScriptFile("someScriptFile.csx")
+</code></pre>
+<p>The script file will now be send over the bus and executed in the hosting application. You can do the same from another application.</p>
+<h4>Additional NuGet Packages</h4>
+<p>If executing C# scripts inside a host application cannot make your day, how about downloading and referencing additional NuGet packages inside your host application, and executing a script using them.</p>
+<p>If your script is going to require additional NuGet packages, which is not already referenced by the host, you can supply them when sending the script:</p>
+<pre><code>.SendAScriptFile("someScriptFile.csx", "LiteGuard")
+</code></pre>
+<p>If the <code>LiteGuard</code> Nuget package is not already downloaded and referenced in the hosting application, <code>ScriptCs.Rebus.Hosting</code> will download and reference it, so you can use it your script. Using <code>LiteGuard</code> is just an example.</p>
+<p>Please feel free to either give me a shout on <a href="https://twitter.com/madstt">Twitter</a> or on <a href="https://github.com/madstt/ScriptCs.Rebus">GitHub</a> with feedback.</p>

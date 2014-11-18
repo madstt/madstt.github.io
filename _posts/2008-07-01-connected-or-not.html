@@ -1,0 +1,30 @@
+---
+layout: post
+title: Connected or not...?!
+date: 2008-07-01 08:33:02.000000000 +02:00
+categories:
+- Computer oddities
+- Network
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+author:
+  login: admin
+  email: mads.toustrup@gmail.com
+  display_name: admin
+  first_name: ''
+  last_name: ''
+---
+<p>A few days back, my wife experienced a weird network issue on her laptop. Usually the laptop receives an IP address immediately on start-up, but this day she received the following network error message: "Limited or no connectivity." What does limited connectivity mean, is there a connection or not? The message did not say anything about the origin of this.</p>
+<p>At first I told her to repair the connection to renew the IP address. This has helped in the past. But no luck this time. I then consulted my wireless router to see if there should be anything that could hint a solution. In the device list I could see the correct MAC address, but there were no IP address related to that MAC address. Everytime a repair was attempted the device left the list and came back with no IP address. I reviewed the security settings to see if the wireless filter was messing up things or the DHCP was not working properly.</p>
+<p>Well, GIYF (Google Is You Friend), so I started hunting a solution. One solution was that malware had replaced the tcpip.sys file. My tcpip.sys file seemed in fine form. Just to be sure I made a full computer scan with AVG, no luck. I then uninstalled the network driver, and re-installed the latest version. This neither solved the issue. After reading several forum posts I realized that this issue is related to Windows XP Service Pack 2, and the Microsoft patch (<a href="http://www.microsoft.com/downloads/details.aspx?FamilyID=17d997d2-5034-4bbb-b74d-ad8430a1f7c8&amp;DisplayLang=en">KB884020</a>) should do the work. Again, no luck, this patch only seems to work with a specific language version of Windows XP. Another hint I got was to use the <a href="http://www.snapfiles.com/get/winsockxpfix.html">Winsock</a> XP Fix, but unfortunately this neither solved the problem. At this point frustration started creeping in on me.</p>
+<p>Another hint sent me check out which services there where running (services.msc from command line). I then realized that the DHCP Client was not running. Trying to start it manually gave me an error saying that a dependent service could not be started. Checking the Dependencies tab under the DHCP Client Properties reviled an unknown service. These services should be removed through the registry. I navigated to the following keys in the registry:<br />
+HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\DHCP</p>
+<p>HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\NetBT</p>
+<div id="EchoTopic" class="answerBody quoted">For each of these, on the right side, double-click: DependOnService<br />
+I then deleted SYMTD. In the post where I read this, it also said that it could have NISDRV instead. I was now able to start the DHCP Client service again. After a reboot, the laptop was able to receive an IP address.</div>
+<div class="answerBody quoted"></div>
+<div class="answerBody quoted">So what is this SYMTDI? The SYMTDI service appears to get installed by Norton Antivirus, where it is added as a dependency for DHCP client. The unistall of Norton removes the file: C:\WIndows\System32\Drivers\SYMTDI.SYS, but it does NOT remove the entry for SYMTDI in the DependOnService value for DHCP. So, SYMTDI won't start because symtdi.sys has been removed. I had actually uninstalled Norten Antivirus just before I ran into this issue.</div>

@@ -1,0 +1,101 @@
+---
+layout: post
+title: Easy Property Notification Verification in MVVM
+date: 2013-09-25 13:09:57.000000000 +02:00
+categories:
+- TDD
+- WPF
+tags: []
+status: publish
+type: post
+published: true
+meta: {}
+author:
+  login: admin
+  email: mads.toustrup@gmail.com
+  display_name: admin
+  first_name: ''
+  last_name: ''
+---
+<p>Currently I’m doing a lot of WPF, we’re profound users of the <a href="https://en.wikipedia.org/wiki/Model_View_ViewModel">MVVM</a> pattern. I therefore often find myself writing a lot of unit tests for viewmodels. A, or maybe <em>the</em>, key feature of the MVVM pattern is the property binding between the view and the viewmodel. Once assigned a value to a property, the viewmodel notifies the view, who updates the view accordingly. A viewmodel might have a significant amount of properties who can notify the view with updates, therefore I’ve implemented two small extension methods for this purpose:</p>
+<div id="scid:9ce6104f-a9aa-4a17-a79f-3a39532ebf7c:aca9eb67-f937-4e75-81cc-3d65df30631f" class="wlWriterEditableSmartContent" style="float: none; padding-bottom: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px">
+<div style="border: #000080 1px solid; color: #000; font-family: 'Courier New', Courier, Monospace; font-size: 10pt">
+<div style="background: #ddd; overflow: auto">
+<ol start="1" style="background: #ffffff; margin: 0 0 0 2.5em; padding: 0 0 0 5px;">
+<li><span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#0000ff">public</span><span style="background:#ffffff;color:#000000"> </span><span style="background:#ffffff;color:#0000ff">static</span><span style="background:#ffffff;color:#000000"> </span><span style="background:#ffffff;color:#0000ff">class</span><span style="background:#ffffff;color:#000000"> </span><span style="background:#ffffff;color:#2b91af">NotifyPropertyChanged</span></li>
+<li style="background: #f3f3f3"><span style="background:#ffffff;color:#000000">{</span></li>
+<li>    <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#0000ff">public</span><span style="background:#ffffff;color:#000000"> </span><span style="background:#ffffff;color:#0000ff">static</span><span style="background:#ffffff;color:#000000"> </span><span style="background:#ffffff;color:#2b91af">NotifyExpectation</span><span style="background:#ffffff;color:#000000">&lt;T&gt;</span></li>
+<li style="background: #f3f3f3">        <span style="background:#ffffff;color:#000000">ShouldNotifyOn&lt;T, TProperty&gt;(</span><span style="background:#ffffff;color:#0000ff">this</span><span style="background:#ffffff;color:#000000"> T owner,</span></li>
+<li>        <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#2b91af">Expression</span><span style="background:#ffffff;color:#000000">&lt;</span><span style="background:#ffffff;color:#2b91af">Func</span><span style="background:#ffffff;color:#000000">&lt;T, TProperty&gt;&gt; propertyPicker)</span></li>
+<li style="background: #f3f3f3">        <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#0000ff">where</span><span style="background:#ffffff;color:#000000"> T : </span><span style="background:#ffffff;color:#2b91af">INotifyPropertyChanged</span></li>
+<li>    <span style="background:#ffffff;color:#000000">{</span></li>
+<li style="background: #f3f3f3">        <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#0000ff">return</span><span style="background:#ffffff;color:#000000"> CreateExpectation(owner,</span></li>
+<li>            <span style="background:#ffffff;color:#000000">propertyPicker, </span><span style="background:#ffffff;color:#0000ff">true</span><span style="background:#ffffff;color:#000000">);</span></li>
+<li style="background: #f3f3f3">    <span style="background:#ffffff;color:#000000">}</span></li>
+<li>&nbsp;</li>
+<li style="background: #f3f3f3">    <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#0000ff">public</span><span style="background:#ffffff;color:#000000"> </span><span style="background:#ffffff;color:#0000ff">static</span><span style="background:#ffffff;color:#000000"> </span><span style="background:#ffffff;color:#2b91af">NotifyExpectation</span><span style="background:#ffffff;color:#000000">&lt;T&gt;</span></li>
+<li>        <span style="background:#ffffff;color:#000000">ShouldNotNotifyOn&lt;T, TProperty&gt;(</span><span style="background:#ffffff;color:#0000ff">this</span><span style="background:#ffffff;color:#000000"> T owner,</span></li>
+<li style="background: #f3f3f3">        <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#2b91af">Expression</span><span style="background:#ffffff;color:#000000">&lt;</span><span style="background:#ffffff;color:#2b91af">Func</span><span style="background:#ffffff;color:#000000">&lt;T, TProperty&gt;&gt; propertyPicker)</span></li>
+<li>        <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#0000ff">where</span><span style="background:#ffffff;color:#000000"> T : </span><span style="background:#ffffff;color:#2b91af">INotifyPropertyChanged</span></li>
+<li style="background: #f3f3f3">    <span style="background:#ffffff;color:#000000">{</span></li>
+<li>        <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#0000ff">return</span><span style="background:#ffffff;color:#000000"> CreateExpectation(owner,</span></li>
+<li style="background: #f3f3f3">            <span style="background:#ffffff;color:#000000">propertyPicker, </span><span style="background:#ffffff;color:#0000ff">false</span><span style="background:#ffffff;color:#000000">);</span></li>
+<li>    <span style="background:#ffffff;color:#000000">}</span></li>
+<li style="background: #f3f3f3">&nbsp;</li>
+<li>    <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#0000ff">private</span><span style="background:#ffffff;color:#000000"> </span><span style="background:#ffffff;color:#0000ff">static</span><span style="background:#ffffff;color:#000000"> </span><span style="background:#ffffff;color:#2b91af">NotifyExpectation</span><span style="background:#ffffff;color:#000000">&lt;T&gt;</span></li>
+<li style="background: #f3f3f3">        <span style="background:#ffffff;color:#000000">CreateExpectation&lt;T, TProperty&gt;(T owner,</span></li>
+<li>        <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#2b91af">Expression</span><span style="background:#ffffff;color:#000000">&lt;</span><span style="background:#ffffff;color:#2b91af">Func</span><span style="background:#ffffff;color:#000000">&lt;T, TProperty&gt;&gt; pickProperty,</span></li>
+<li style="background: #f3f3f3">        <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#0000ff">bool</span><span style="background:#ffffff;color:#000000"> eventExpected) </span><span style="background:#ffffff;color:#0000ff">where</span><span style="background:#ffffff;color:#000000"> T : </span><span style="background:#ffffff;color:#2b91af">INotifyPropertyChanged</span></li>
+<li>    <span style="background:#ffffff;color:#000000">{</span></li>
+<li style="background: #f3f3f3">        <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#0000ff">var</span><span style="background:#ffffff;color:#000000"> propertyName =</span></li>
+<li>            <span style="background:#ffffff;color:#000000">((</span><span style="background:#ffffff;color:#2b91af">MemberExpression</span><span style="background:#ffffff;color:#000000">)pickProperty.Body).Member.Name;</span></li>
+<li style="background: #f3f3f3">        <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#0000ff">return</span><span style="background:#ffffff;color:#000000"> </span><span style="background:#ffffff;color:#0000ff">new</span><span style="background:#ffffff;color:#000000"> </span><span style="background:#ffffff;color:#2b91af">NotifyExpectation</span><span style="background:#ffffff;color:#000000">&lt;T&gt;(owner,</span></li>
+<li>            <span style="background:#ffffff;color:#000000">propertyName, eventExpected);</span></li>
+<li style="background: #f3f3f3">    <span style="background:#ffffff;color:#000000">}</span></li>
+<li><span style="background:#ffffff;color:#000000">}</span></li>
+</ol></div>
+</p></div>
+</p></div>
+<p>&#160;</p>
+<p>These extension methods can be used in several verification test contexts. The obvious one would be:</p>
+<div id="scid:9ce6104f-a9aa-4a17-a79f-3a39532ebf7c:d4a20488-f106-4a1e-b011-4c392b27357c" class="wlWriterEditableSmartContent" style="float: none; padding-bottom: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px">
+<div style="border: #000080 1px solid; color: #000; font-family: 'Courier New', Courier, Monospace; font-size: 10pt">
+<div style="background: #ddd; overflow: auto">
+<ol start="1" style="background: #ffffff; margin: 0 0 0 2.5em; padding: 0 0 0 5px;">
+<li><span style="background:#ffffff;color:#000000">[</span><span style="background:#ffffff;color:#2b91af">Test</span><span style="background:#ffffff;color:#000000">]</span></li>
+<li style="background: #f3f3f3"><span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#0000ff">public</span><span style="background:#ffffff;color:#000000"> </span><span style="background:#ffffff;color:#0000ff">void</span><span style="background:#ffffff;color:#000000"> OnPropertyChangedIsCalledForParticularProperty()</span></li>
+<li><span style="background:#ffffff;color:#000000">{</span></li>
+<li style="background: #f3f3f3">    <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#008000">// Arrange</span></li>
+<li>    <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#0000ff">var</span><span style="background:#ffffff;color:#000000"> sut = </span><span style="background:#ffffff;color:#0000ff">new</span><span style="background:#ffffff;color:#000000"> </span><span style="background:#ffffff;color:#2b91af">MyClass</span><span style="background:#ffffff;color:#000000">();</span></li>
+<li style="background: #f3f3f3">&nbsp;</li>
+<li>    <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#008000">// Act</span></li>
+<li style="background: #f3f3f3">    <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#008000">// Assert</span></li>
+<li>    <span style="background:#ffffff;color:#000000">sut.ShouldNotifyOn(model =&gt; model.Property)</span></li>
+<li style="background: #f3f3f3">        <span style="background:#ffffff;color:#000000">.When(model =&gt; model.Property = </span><span style="background:#ffffff;color:#a31515">&quot;new string&quot;</span><span style="background:#ffffff;color:#000000">);</span></li>
+<li><span style="background:#ffffff;color:#000000">}</span></li>
+</ol></div>
+</p></div>
+</p></div>
+<p>&#160;</p>
+<p>In this test I verify that the property named Property is raising its PropertyChanged event, when the setter is called with the string value “new string”. Clean and easy verification of properties on view models. These extension methods can participate in more complex test scenarios:</p>
+<p>
+<div id="scid:9ce6104f-a9aa-4a17-a79f-3a39532ebf7c:a46c497d-84d9-4651-9b2f-901e21ff0abb" class="wlWriterEditableSmartContent" style="float: none; padding-bottom: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px">
+<div style="border: #000080 1px solid; color: #000; font-family: 'Courier New', Courier, Monospace; font-size: 10pt">
+<div style="background: #ddd; overflow: auto">
+<ol start="1" style="background: #ffffff; margin: 0 0 0 2.5em; padding: 0 0 0 5px;">
+<li><span style="background:#ffffff;color:#000000">[</span><span style="background:#ffffff;color:#2b91af">Test</span><span style="background:#ffffff;color:#000000">]</span></li>
+<li style="background: #f3f3f3"><span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#0000ff">public</span><span style="background:#ffffff;color:#000000"> </span><span style="background:#ffffff;color:#0000ff">void</span><span style="background:#ffffff;color:#000000"> OnPropertyChangedIsCalledForParticularProperty()</span></li>
+<li><span style="background:#ffffff;color:#000000">{</span></li>
+<li style="background: #f3f3f3">    <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#008000">// Arrange</span></li>
+<li>    <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#0000ff">var</span><span style="background:#ffffff;color:#000000"> sut = </span><span style="background:#ffffff;color:#0000ff">new</span><span style="background:#ffffff;color:#000000"> </span><span style="background:#ffffff;color:#2b91af">MyClass</span><span style="background:#ffffff;color:#000000">();</span></li>
+<li style="background: #f3f3f3">&nbsp;</li>
+<li>    <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#008000">// Act</span></li>
+<li style="background: #f3f3f3">    <span style="background:#ffffff;color:#000000"></span><span style="background:#ffffff;color:#008000">// Assert</span></li>
+<li>    <span style="background:#ffffff;color:#000000">sut.ShouldNotifyOn(model =&gt; model.Property)</span></li>
+<li style="background: #f3f3f3">        <span style="background:#ffffff;color:#000000">.When(model =&gt; model.IntProperty = 3);</span></li>
+<li><span style="background:#ffffff;color:#000000">}</span></li>
+</ol></div>
+</p></div>
+</p></div></p>
+<p>In this test I verify that the Property is raising the event, whenever another property setter is called. </p>
+<p>Combining ShouldNotifyOn with combinations of the ShouldNotNotifyOn makes these two small extension methods quite handy when testing and verifying properties on view models. </p>

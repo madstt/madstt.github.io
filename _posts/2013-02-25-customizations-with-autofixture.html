@@ -1,0 +1,301 @@
+---
+layout: post
+title: Customizations with AutoFixture
+date: 2013-02-25 19:17:50.000000000 +01:00
+categories:
+- AutoFixture
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+author:
+  login: admin
+  email: mads.toustrup@gmail.com
+  display_name: admin
+  first_name: ''
+  last_name: ''
+---
+<blockquote>I’m profound advocate for <a href="http://https://en.wikipedia.org/wiki/Test-driven_development">Test-Driven Development</a> (TDD). I don’t regard myself as a TDD expert, but I’m getting more and more used to the TDD “lifecycle”:</p>
+<p align="center"><img src="assets/9k=" alt="" /></p>
+<p>There are several advantages to adopting this approach and its beyond the scope of this blog post in particular, I will definitely write an entire blog post on TDD at some point.</p>
+<p>When I apply the TDD “lifecycle”, I use a number of tools, which support and ease the lifecycle. I mainly use the <a href="http://www.nunit.org/">NUnit</a> test framework, I have spiked in <a href="https://xunit.codeplex.com/">xUnit</a>, but still stick to NUnit as my primary test framework. An indispensable tool when unit testing is a mocking framework, I have used <a href="https://code.google.com/p/moq/">Moq</a> for a couple years, after leaving <a href="http://www.hibernatingrhinos.com/oss/rhino-mocks">Rhino Mocks</a>. They are both great dynamic mocking frameworks, and a must. The last, but not least, primary tool in my TDD toolbox is <a href="https://github.com/AutoFixture">AutoFixture</a>. Its one of my favorite frameworks, and I almost can’t TDD without it. For those of you not familiar with AutoFixture, I’ll give you short intro.</p>
+<p>AutoFixture creates dummy data for your unit tests, so it can be a real time saver. A simple string can be created like this:</p>
+<div id="scid:9ce6104f-a9aa-4a17-a79f-3a39532ebf7c:59dd9b41-8ac3-4d82-872a-fce583fc183f" class="wlWriterEditableSmartContent" style="margin: 0px; display: inline; float: none; padding: 0px;">
+<div style="border: #000080 1px solid; color: #000; font-family: 'Courier New', Courier, Monospace; font-size: 10pt;">
+<div style="background: #ddd; max-height: 300px; overflow: auto;">
+<ol style="background: #ffffff; margin: 0 0 0 2em; padding: 0 0 0 5px;" start="1">
+<li><span style="background: #ffffff; color: #0000ff;">var</span><span style="background: #ffffff; color: #000000;"> fixture = </span><span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">Fixture</span><span style="background: #ffffff; color: #000000;">();</span></li>
+<li style="background: #f3f3f3;"><span style="background: #ffffff; color: #0000ff;">var</span><span style="background: #ffffff; color: #000000;"> dummyString = fixture.CreateAnonymous&lt;</span><span style="background: #ffffff; color: #0000ff;">string</span><span style="background: #ffffff; color: #000000;">&gt;();</span></li>
+</ol>
+</div>
+</div>
+</div>
+<p>The result would be a string with a value like this: “a3cb054d-dbb3-4d97-85be-b11e06784f97".</p>
+<p>Likewise you can generate integers. You can generate a finite number of strings:</p>
+<div id="scid:9ce6104f-a9aa-4a17-a79f-3a39532ebf7c:99880beb-3688-4091-9b9e-0eb11d5573cf" class="wlWriterEditableSmartContent" style="margin: 0px; display: inline; float: none; padding: 0px;">
+<div style="border: #000080 1px solid; color: #000; font-family: 'Courier New', Courier, Monospace; font-size: 10pt;">
+<div style="background: #ddd; max-height: 300px; overflow: auto;">
+<ol style="background: #ffffff; margin: 0 0 0 2em; padding: 0 0 0 5px;" start="1">
+<li><span style="background: #ffffff; color: #0000ff;">var</span><span style="background: #ffffff; color: #000000;"> fixture = </span><span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">Fixture</span><span style="background: #ffffff; color: #000000;">();</span></li>
+<li style="background: #f3f3f3;"><span style="background: #ffffff; color: #0000ff;">var</span><span style="background: #ffffff; color: #000000;"> dummyString = fixture.CreateMany&lt;</span><span style="background: #ffffff; color: #0000ff;">string</span><span style="background: #ffffff; color: #000000;">&gt;();</span></li>
+</ol>
+</div>
+</div>
+</div>
+<p>&nbsp;</p>
+<p>This would create the as many strings as the fixture.RepeatCount is set to, by default it is set to three. You can also modify the count inline:</p>
+<div id="scid:9ce6104f-a9aa-4a17-a79f-3a39532ebf7c:c8278fbe-5863-43bd-af1f-fef51603d7b7" class="wlWriterEditableSmartContent" style="margin: 0px; display: inline; float: none; padding: 0px;">
+<div style="border: #000080 1px solid; color: #000; font-family: 'Courier New', Courier, Monospace; font-size: 10pt;">
+<div style="background: #ddd; max-height: 300px; overflow: auto;">
+<ol style="background: #ffffff; margin: 0 0 0 2em; padding: 0 0 0 5px;" start="1">
+<li><span style="background: #ffffff; color: #0000ff;">var</span><span style="background: #ffffff; color: #000000;"> fixture = </span><span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">Fixture</span><span style="background: #ffffff; color: #000000;">();</span></li>
+<li style="background: #f3f3f3;"><span style="background: #ffffff; color: #0000ff;">var</span><span style="background: #ffffff; color: #000000;"> dummyString = fixture.CreateMany&lt;</span><span style="background: #ffffff; color: #0000ff;">string</span><span style="background: #ffffff; color: #000000;">&gt;(5);</span></li>
+</ol>
+</div>
+</div>
+</div>
+<p>&nbsp;</p>
+<p>This would create five dummy strings. If you need to add dummy data to a list:</p>
+<div id="scid:9ce6104f-a9aa-4a17-a79f-3a39532ebf7c:be0ce79e-8e81-467a-b2ca-433ff511c5b4" class="wlWriterEditableSmartContent" style="margin: 0px; display: inline; float: none; padding: 0px;">
+<div style="border: #000080 1px solid; color: #000; font-family: 'Courier New', Courier, Monospace; font-size: 10pt;">
+<div style="background: #ddd; max-height: 300px; overflow: auto;">
+<ol style="background: #ffffff; margin: 0 0 0 2em; padding: 0 0 0 5px;" start="1">
+<li><span style="background: #ffffff; color: #0000ff;">var</span><span style="background: #ffffff; color: #000000;"> fixture = </span><span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">Fixture</span><span style="background: #ffffff; color: #000000;">();</span></li>
+<li style="background: #f3f3f3;"><span style="background: #ffffff; color: #0000ff;">var</span><span style="background: #ffffff; color: #000000;"> strings = </span><span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">List</span><span style="background: #ffffff; color: #000000;">&lt;</span><span style="background: #ffffff; color: #0000ff;">string</span><span style="background: #ffffff; color: #000000;">&gt;();</span></li>
+<li><span style="background: #ffffff; color: #000000;">fixture.AddManyTo(strings, 5);</span></li>
+</ol>
+</div>
+</div>
+</div>
+<p>&nbsp;</p>
+<p>This would add five dummy strings to the ‘strings’ list. The power of AutoFixture is that it can also generate dummy objects from your complex classes:</p>
+<div id="scid:9ce6104f-a9aa-4a17-a79f-3a39532ebf7c:c099b916-bda0-4dd3-8f0d-4e8c62454641" class="wlWriterEditableSmartContent" style="margin: 0px; display: inline; float: none; padding: 0px;">
+<div style="border: #000080 1px solid; color: #000; font-family: 'Courier New', Courier, Monospace; font-size: 10pt;">
+<div style="background: #ddd; max-height: 300px; overflow: auto;">
+<ol style="background: #ffffff; margin: 0 0 0 2em; padding: 0 0 0 5px;" start="1">
+<li><span style="background: #ffffff; color: #0000ff;">var</span><span style="background: #ffffff; color: #000000;"> fixture = </span><span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">Fixture</span><span style="background: #ffffff; color: #000000;">();</span></li>
+<li style="background: #f3f3f3;"><span style="background: #ffffff; color: #0000ff;">var</span><span style="background: #ffffff; color: #000000;"> dummyMyClass = fixture.CreateAnonymous&lt;</span><span style="background: #ffffff; color: #2b91af;">MyClass</span><span style="background: #ffffff; color: #000000;">&gt;();</span></li>
+</ol>
+</div>
+</div>
+</div>
+<p>&nbsp;</p>
+<p>So if my complex class had any public properties like strings, these would be assigned a dummy value. Sometimes it might also be great to set a known value for a property:</p>
+<div id="scid:9ce6104f-a9aa-4a17-a79f-3a39532ebf7c:d82a613a-6787-4a2a-8eb3-1e514069f0d0" class="wlWriterEditableSmartContent" style="margin: 0px; display: inline; float: none; padding: 0px;">
+<div style="border: #000080 1px solid; color: #000; font-family: 'Courier New', Courier, Monospace; font-size: 10pt;">
+<div style="background: #ddd; max-height: 300px; overflow: auto;">
+<ol style="background: #ffffff; margin: 0 0 0 2em; padding: 0 0 0 5px;" start="1">
+<li><span style="background: #ffffff; color: #0000ff;">var</span><span style="background: #ffffff; color: #000000;"> fixture = </span><span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">Fixture</span><span style="background: #ffffff; color: #000000;">();</span></li>
+<li style="background: #f3f3f3;"><span style="background: #ffffff; color: #0000ff;">var</span><span style="background: #ffffff; color: #000000;"> dummyMyClass = fixture.Build&lt;</span><span style="background: #ffffff; color: #2b91af;">MyClass</span><span style="background: #ffffff; color: #000000;">&gt;().With(myClass =&gt; myClass.Name, </span><span style="background: #ffffff; color: #a31515;">"Mads"</span><span style="background: #ffffff; color: #000000;">);</span></li>
+</ol>
+</div>
+</div>
+</div>
+<p>&nbsp;</p>
+<p>There are many more nifty stuff that AutoFixture can help you with, but I’m going to drag you all the way around. For the remaining part of this blog post I’ll focus on how to customize the generation of dummy test data.</p>
+<p>There are multiple ways to customize how AutoFixture generates its values. A simple approach to customize the string generation:</p></blockquote>
+<div id="scid:9ce6104f-a9aa-4a17-a79f-3a39532ebf7c:280044ef-b09b-4f78-a9bd-afdab4b36dfa" class="wlWriterEditableSmartContent" style="margin: 0px; display: inline; float: none; padding: 0px;">
+<div style="border: #000080 1px solid; color: #000; font-family: 'Courier New', Courier, Monospace; font-size: 10pt;">
+<div style="background: #ddd; max-height: 300px; overflow: auto;">
+<ol style="background: #ffffff; margin: 0 0 0 2em; padding: 0 0 0 5px;" start="1">
+<li><span style="background: #ffffff; color: #0000ff;">var</span><span style="background: #ffffff; color: #000000;"> fixture = </span><span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">Fixture</span><span style="background: #ffffff; color: #000000;">();</span></li>
+<li style="background: #f3f3f3;"><span style="background: #ffffff; color: #0000ff;">var</span><span style="background: #ffffff; color: #000000;"> seededString = fixture.Build&lt;</span><span style="background: #ffffff; color: #0000ff;">string</span><span style="background: #ffffff; color: #000000;">&gt;().FromSeed(s =&gt; </span><span style="background: #ffffff; color: #a31515;">"foo"</span><span style="background: #ffffff; color: #000000;">).CreateAnonymous();</span></li>
+</ol>
+</div>
+</div>
+</div>
+<p>&nbsp;</p>
+<p>One piece of dummy data that always takes time is lists. As we learned above we can generate a dummy list in AutoFixture like this:</p>
+<div id="scid:9ce6104f-a9aa-4a17-a79f-3a39532ebf7c:272dfed1-8db3-42de-b506-e35673528956" class="wlWriterEditableSmartContent" style="margin: 0px; display: inline; float: none; padding: 0px;">
+<div style="border: #000080 1px solid; color: #000; font-family: 'Courier New', Courier, Monospace; font-size: 10pt;">
+<div style="background: #ddd; max-height: 300px; overflow: auto;">
+<ol style="background: #ffffff; margin: 0 0 0 2em; padding: 0 0 0 5px;" start="1">
+<li><span style="background: #ffffff; color: #0000ff;">var</span><span style="background: #ffffff; color: #000000;"> fixture = </span><span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">Fixture</span><span style="background: #ffffff; color: #000000;">();</span></li>
+<li style="background: #f3f3f3;"><span style="background: #ffffff; color: #0000ff;">var</span><span style="background: #ffffff; color: #000000;"> dummyList = fixture.CreateAnonymous&lt;</span><span style="background: #ffffff; color: #2b91af;">List</span><span style="background: #ffffff; color: #000000;">&lt;</span><span style="background: #ffffff; color: #2b91af;">MyClass</span><span style="background: #ffffff; color: #000000;">&gt;&gt;();</span></li>
+</ol>
+</div>
+</div>
+</div>
+<p>&nbsp;</p>
+<p>AutoFixture generates the list for you, but the list is empty. We would have preferred a list of MyClass instances, therefore a small customization is needed:</p>
+<div id="scid:9ce6104f-a9aa-4a17-a79f-3a39532ebf7c:e4bdbdd2-5d06-4fd6-aaa4-75e5fbc49a0a" class="wlWriterEditableSmartContent" style="margin: 0px; display: inline; float: none; padding: 0px;">
+<div style="border: #000080 1px solid; color: #000; font-family: 'Courier New', Courier, Monospace; font-size: 10pt;">
+<div style="background: #ddd; max-height: 300px; overflow: auto;">
+<ol style="background: #ffffff; margin: 0 0 0 2em; padding: 0 0 0 5px;" start="1">
+<li><span style="background: #ffffff; color: #0000ff;">var</span><span style="background: #ffffff; color: #000000;"> fixture = </span><span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">Fixture</span><span style="background: #ffffff; color: #000000;">().Customize(</span><span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">MultipleCustomization</span><span style="background: #ffffff; color: #000000;">());</span></li>
+<li style="background: #f3f3f3;"><span style="background: #ffffff; color: #0000ff;">var</span><span style="background: #ffffff; color: #000000;"> dummyList = fixture.CreateAnonymous&lt;</span><span style="background: #ffffff; color: #2b91af;">List</span><span style="background: #ffffff; color: #000000;">&lt;</span><span style="background: #ffffff; color: #2b91af;">MyClass</span><span style="background: #ffffff; color: #000000;">&gt;&gt;();</span></li>
+</ol>
+</div>
+</div>
+</div>
+<p>&nbsp;</p>
+<p>Adding an instance of the MultipleCustomization (line 1), would generate a list of 3 MyClass objects, with a dummy Name string. Remember, three is the default number for AutoFixture. Assume that you have a child class inside your parent class:</p>
+<div id="scid:9ce6104f-a9aa-4a17-a79f-3a39532ebf7c:ba1eb5db-9596-4e26-8556-a23571168732" class="wlWriterEditableSmartContent" style="margin: 0px; display: inline; float: none; padding: 0px;">
+<div style="border: #000080 1px solid; color: #000; font-family: 'Courier New', Courier, Monospace; font-size: 10pt;">
+<div style="background: #ddd; max-height: 300px; overflow: auto;">
+<ol style="background: #ffffff; margin: 0 0 0 2.5em; padding: 0 0 0 5px;" start="1">
+<li><span style="background: #ffffff; color: #0000ff;">public</span><span style="background: #ffffff; color: #0000ff;">class</span><span style="background: #ffffff; color: #2b91af;">MyParentClass</span></li>
+<li style="background: #f3f3f3;"><span style="background: #ffffff; color: #000000;">{</span></li>
+<li>    <span style="background: #ffffff; color: #0000ff;">public</span><span style="background: #ffffff; color: #0000ff;">string</span><span style="background: #ffffff; color: #000000;"> ParentName { </span><span style="background: #ffffff; color: #0000ff;">get</span><span style="background: #ffffff; color: #000000;">; </span><span style="background: #ffffff; color: #0000ff;">set</span><span style="background: #ffffff; color: #000000;">; }</span></li>
+<li style="background: #f3f3f3;">    <span style="background: #ffffff; color: #0000ff;">public</span><span style="background: #ffffff; color: #2b91af;">MyChildClass</span><span style="background: #ffffff; color: #000000;"> Child { </span><span style="background: #ffffff; color: #0000ff;">get</span><span style="background: #ffffff; color: #000000;">; </span><span style="background: #ffffff; color: #0000ff;">set</span><span style="background: #ffffff; color: #000000;">; }</span></li>
+<li><span style="background: #ffffff; color: #000000;">}</span></li>
+<li style="background: #f3f3f3;"></li>
+<li><span style="background: #ffffff; color: #0000ff;">public</span><span style="background: #ffffff; color: #0000ff;">class</span><span style="background: #ffffff; color: #2b91af;">MyChildClass</span></li>
+<li style="background: #f3f3f3;"><span style="background: #ffffff; color: #000000;">{</span></li>
+<li>    <span style="background: #ffffff; color: #0000ff;">public</span><span style="background: #ffffff; color: #0000ff;">string</span><span style="background: #ffffff; color: #000000;"> ChildName { </span><span style="background: #ffffff; color: #0000ff;">get</span><span style="background: #ffffff; color: #000000;">; </span><span style="background: #ffffff; color: #0000ff;">set</span><span style="background: #ffffff; color: #000000;">; }</span></li>
+<li style="background: #f3f3f3;"><span style="background: #ffffff; color: #000000;">}</span></li>
+</ol>
+</div>
+</div>
+</div>
+<p>Generating a list of MyParentClass:</p>
+<div id="scid:9ce6104f-a9aa-4a17-a79f-3a39532ebf7c:1afd8eee-2246-413d-86cc-a378496ef232" class="wlWriterEditableSmartContent" style="margin: 0px; display: inline; float: none; padding: 0px;">
+<div style="border: #000080 1px solid; color: #000; font-family: 'Courier New', Courier, Monospace; font-size: 10pt;">
+<div style="background: #ddd; max-height: 300px; overflow: auto;">
+<ol style="background: #ffffff; margin: 0 0 0 2em; padding: 0 0 0 5px;" start="1">
+<li><span style="background: #ffffff; color: #0000ff;">var</span><span style="background: #ffffff; color: #000000;"> fixture = </span><span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">Fixture</span><span style="background: #ffffff; color: #000000;">().Customize(</span><span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">MultipleCustomization</span><span style="background: #ffffff; color: #000000;">());</span></li>
+<li style="background: #f3f3f3;"><span style="background: #ffffff; color: #0000ff;">var</span><span style="background: #ffffff; color: #000000;"> dummyList = fixture.CreateAnonymous&lt;</span><span style="background: #ffffff; color: #2b91af;">List</span><span style="background: #ffffff; color: #000000;">&lt;</span><span style="background: #ffffff; color: #2b91af;">MyParentClass</span><span style="background: #ffffff; color: #000000;">&gt;&gt;();</span></li>
+</ol>
+</div>
+</div>
+</div>
+<p>Would give me a list of 3 MyParentClass, with dummy string ParentName and a dummy MyChildClass, with a dummy string ChildName.</p>
+<p>One more thing before jumping into handling abstractions, lets assume that we would like to a list of MyChildClass inside MyParentClass (line 4):</p>
+<div id="scid:9ce6104f-a9aa-4a17-a79f-3a39532ebf7c:8942472a-672f-4f49-8b28-226f048c78e9" class="wlWriterEditableSmartContent" style="margin: 0px; display: inline; float: none; padding: 0px;">
+<div style="border: #000080 1px solid; color: #000; font-family: 'Courier New', Courier, Monospace; font-size: 10pt;">
+<div style="background: #ddd; max-height: 300px; overflow: auto;">
+<ol style="background: #ffffff; margin: 0 0 0 2.5em; padding: 0 0 0 5px;" start="1">
+<li><span style="background: #ffffff; color: #0000ff;">public</span><span style="background: #ffffff; color: #0000ff;">class</span><span style="background: #ffffff; color: #2b91af;">MyParentClass</span></li>
+<li style="background: #f3f3f3;"><span style="background: #ffffff; color: #000000;">{</span></li>
+<li>    <span style="background: #ffffff; color: #0000ff;">public</span><span style="background: #ffffff; color: #0000ff;">string</span><span style="background: #ffffff; color: #000000;"> ParentName { </span><span style="background: #ffffff; color: #0000ff;">get</span><span style="background: #ffffff; color: #000000;">; </span><span style="background: #ffffff; color: #0000ff;">set</span><span style="background: #ffffff; color: #000000;">; }</span></li>
+<li style="background: #f3f3f3;">    <span style="background: #ffffff; color: #0000ff;">public</span><span style="background: #ffffff; color: #2b91af;">List</span><span style="background: #ffffff; color: #000000;">&lt;</span><span style="background: #ffffff; color: #2b91af;">MyChildClass</span><span style="background: #ffffff; color: #000000;">&gt; Children { </span><span style="background: #ffffff; color: #0000ff;">get</span><span style="background: #ffffff; color: #000000;">; </span><span style="background: #ffffff; color: #0000ff;">set</span><span style="background: #ffffff; color: #000000;">; }</span></li>
+<li><span style="background: #ffffff; color: #000000;">}</span></li>
+<li style="background: #f3f3f3;"></li>
+<li><span style="background: #ffffff; color: #0000ff;">public</span><span style="background: #ffffff; color: #0000ff;">class</span><span style="background: #ffffff; color: #2b91af;">MyChildClass</span></li>
+<li style="background: #f3f3f3;"><span style="background: #ffffff; color: #000000;">{</span></li>
+<li>    <span style="background: #ffffff; color: #0000ff;">public</span><span style="background: #ffffff; color: #0000ff;">string</span><span style="background: #ffffff; color: #000000;"> ChildName { </span><span style="background: #ffffff; color: #0000ff;">get</span><span style="background: #ffffff; color: #000000;">; </span><span style="background: #ffffff; color: #0000ff;">set</span><span style="background: #ffffff; color: #000000;">; }</span></li>
+<li style="background: #f3f3f3;"><span style="background: #ffffff; color: #000000;">}</span></li>
+</ol>
+</div>
+</div>
+</div>
+<p>&nbsp;</p>
+<p>This gives me a list of 3 MyParentClass where each has a list of three MyChildClass objects. Remember we can change the number of list items by changing the RepeatCount on the Fixture instance. In some scenarios it might be necessary to change only one of the counts. This is done by using the Register method:</p>
+<div id="scid:9ce6104f-a9aa-4a17-a79f-3a39532ebf7c:061803e2-9268-44a8-b2e1-f1caf2688bad" class="wlWriterEditableSmartContent" style="margin: 0px; display: inline; float: none; padding: 0px;">
+<div style="border: #000080 1px solid; color: #000; font-family: 'Courier New', Courier, Monospace; font-size: 10pt;">
+<div style="background: #ddd; max-height: 300px; overflow: auto;">
+<ol style="background: #ffffff; margin: 0 0 0 2em; padding: 0 0 0 5px;" start="1">
+<li><span style="background: #ffffff; color: #0000ff;">var</span><span style="background: #ffffff; color: #000000;"> fixture = </span><span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">Fixture</span><span style="background: #ffffff; color: #000000;">().Customize(</span><span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">MultipleCustomization</span><span style="background: #ffffff; color: #000000;">());</span></li>
+<li style="background: #f3f3f3;"><span style="background: #ffffff; color: #000000;">fixture.Register(() =&gt; fixture.CreateMany&lt;</span><span style="background: #ffffff; color: #2b91af;">MyChildClass</span><span style="background: #ffffff; color: #000000;">&gt;(5));</span></li>
+<li><span style="background: #ffffff; color: #0000ff;">var</span><span style="background: #ffffff; color: #000000;"> dummyList = fixture.CreateAnonymous&lt;</span><span style="background: #ffffff; color: #2b91af;">List</span><span style="background: #ffffff; color: #000000;">&lt;</span><span style="background: #ffffff; color: #2b91af;">MyParentClass</span><span style="background: #ffffff; color: #000000;">&gt;&gt;();</span></li>
+</ol>
+</div>
+</div>
+</div>
+<p>&nbsp;</p>
+<p>Now we have a list of three MyParentClass where each has a list of five MyChildClass. This means that every time the fixture needs to generate a list of MyChildClass, it would use the anonymous method in line 2.</p>
+<p>So, abstractions. By default you can’t do something like this:</p>
+<div id="scid:9ce6104f-a9aa-4a17-a79f-3a39532ebf7c:09a1a9c4-38d8-4e1f-8ca1-3d022322efbc" class="wlWriterEditableSmartContent" style="margin: 0px; display: inline; float: none; padding: 0px;">
+<div style="border: #000080 1px solid; color: #000; font-family: 'Courier New', Courier, Monospace; font-size: 10pt;">
+<div style="background: #ddd; max-height: 300px; overflow: auto;">
+<ol style="background: #ffffff; margin: 0 0 0 2em; padding: 0 0 0 5px;" start="1">
+<li><span style="background: #ffffff; color: #0000ff;">var</span><span style="background: #ffffff; color: #000000;"> fixture = </span><span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">Fixture</span><span style="background: #ffffff; color: #000000;">();</span></li>
+<li style="background: #f3f3f3;"><span style="background: #ffffff; color: #0000ff;">var</span><span style="background: #ffffff; color: #000000;"> dummyAbstraction = fixture.CreateAnonymous&lt;</span><span style="background: #ffffff; color: #2b91af;">IService1</span><span style="background: #ffffff; color: #000000;">&gt;();</span></li>
+</ol>
+</div>
+</div>
+</div>
+<p>&nbsp;</p>
+<p>AutoFixture would throw an exception at you. AutoFixture is not able to create an instance of this interface without a constructor. So you can provide a fake instance, all it requires is that it implements the IService1 interface and then register it to the Fixture:</p>
+<div id="scid:9ce6104f-a9aa-4a17-a79f-3a39532ebf7c:0d9e3aec-0cdd-491d-9ed0-572f815256d6" class="wlWriterEditableSmartContent" style="margin: 0px; display: inline; float: none; padding: 0px;">
+<div style="border: #000080 1px solid; color: #000; font-family: 'Courier New', Courier, Monospace; font-size: 10pt;">
+<div style="background: #ddd; max-height: 300px; overflow: auto;">
+<ol style="background: #ffffff; margin: 0 0 0 2em; padding: 0 0 0 5px;" start="1">
+<li><span style="background: #ffffff; color: #0000ff;">var</span><span style="background: #ffffff; color: #000000;"> fixture = </span><span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">Fixture</span><span style="background: #ffffff; color: #000000;">();</span></li>
+<li style="background: #f3f3f3;"><span style="background: #ffffff; color: #000000;">fixture.Register&lt;</span><span style="background: #ffffff; color: #2b91af;">IService1</span><span style="background: #ffffff; color: #000000;">&gt;(() =&gt; </span><span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">FakeService</span><span style="background: #ffffff; color: #000000;">());</span></li>
+<li><span style="background: #ffffff; color: #0000ff;">var</span><span style="background: #ffffff; color: #000000;"> dummyService = fixture.CreateAnonymous&lt;</span><span style="background: #ffffff; color: #2b91af;">IService1</span><span style="background: #ffffff; color: #000000;">&gt;();</span></li>
+</ol>
+</div>
+</div>
+</div>
+<p>&nbsp;</p>
+<p>Now AutoFixture is able to create a dummy version of your FakeService.</p>
+<p>I’m a big fan of dependency injection and make heavily use of <a href="https://en.wikipedia.org/wiki/Inversion_of_control">IoC</a> containers. See my previous post on <a href="http://madstt.dk/dependency-injection-and-me/">dependency injection</a> and me. Especially constructor injection is used everywhere.</p>
+<p>This often forces me to write a lot of mocking data for all my dependencies, which can be a real time killer:</p>
+<div id="scid:9ce6104f-a9aa-4a17-a79f-3a39532ebf7c:c30f9c05-0444-4f27-ba03-14cb0bec97b2" class="wlWriterEditableSmartContent" style="margin: 0px; display: inline; float: none; padding: 0px;">
+<div style="border: #000080 1px solid; color: #000; font-family: 'Courier New', Courier, Monospace; font-size: 10pt;">
+<div style="background: #ddd; max-height: 300px; overflow: auto;">
+<ol style="background: #ffffff; margin: 0 0 0 2em; padding: 0 0 0 5px;" start="1">
+<li><span style="background: #ffffff; color: #0000ff;">var</span><span style="background: #ffffff; color: #000000;"> fixture = </span><span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">Fixture</span><span style="background: #ffffff; color: #000000;">();</span></li>
+<li style="background: #f3f3f3;"><span style="background: #ffffff; color: #0000ff;">var</span><span style="background: #ffffff; color: #000000;"> sut = </span><span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">ServiceToTest</span><span style="background: #ffffff; color: #000000;">(</span><span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">Mock</span><span style="background: #ffffff; color: #000000;">&lt;</span><span style="background: #ffffff; color: #2b91af;">IService1</span><span style="background: #ffffff; color: #000000;">&gt;().Object, </span><span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">Mock</span><span style="background: #ffffff; color: #000000;">&lt;</span><span style="background: #ffffff; color: #2b91af;">IService2</span><span style="background: #ffffff; color: #000000;">&gt;().Object, </span><span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">Mock</span><span style="background: #ffffff; color: #000000;">&lt;</span><span style="background: #ffffff; color: #2b91af;">IService3</span><span style="background: #ffffff; color: #000000;">&gt;().Object)</span></li>
+</ol>
+</div>
+</div>
+</div>
+<p>&nbsp;</p>
+<p>This is just a simple example, sometimes there a many more dependencies. The usual approach with Moq is to set expectations like this:</p>
+<div id="scid:9ce6104f-a9aa-4a17-a79f-3a39532ebf7c:9327d12c-59ea-42a9-b23b-c9599796a1a7" class="wlWriterEditableSmartContent" style="margin: 0px; display: inline; float: none; padding: 0px;">
+<div style="border: #000080 1px solid; color: #000; font-family: 'Courier New', Courier, Monospace; font-size: 10pt;">
+<div style="background: #ddd; max-height: 300px; overflow: auto;">
+<ol style="background: #ffffff; margin: 0 0 0 2em; padding: 0 0 0 5px;" start="1">
+<li><span style="background: #ffffff; color: #0000ff;">var</span><span style="background: #ffffff; color: #000000;"> fixture = </span><span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">Fixture</span><span style="background: #ffffff; color: #000000;">();</span></li>
+<li style="background: #f3f3f3;"><span style="background: #ffffff; color: #0000ff;">var</span><span style="background: #ffffff; color: #000000;"> mock = </span><span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">Mock</span><span style="background: #ffffff; color: #000000;">&lt;</span><span style="background: #ffffff; color: #2b91af;">IService2</span><span style="background: #ffffff; color: #000000;">&gt;();</span></li>
+<li><span style="background: #ffffff; color: #000000;">mock.Setup(service2 =&gt; service2.DoStuff()).Returns(</span><span style="background: #ffffff; color: #a31515;">"foo"</span><span style="background: #ffffff; color: #000000;">);</span></li>
+<li style="background: #f3f3f3;"><span style="background: #ffffff; color: #0000ff;">var</span><span style="background: #ffffff; color: #000000;"> sut = </span><span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">ServiceToTest</span><span style="background: #ffffff; color: #000000;">(</span><span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">Mock</span><span style="background: #ffffff; color: #000000;">&lt;</span><span style="background: #ffffff; color: #2b91af;">IService1</span><span style="background: #ffffff; color: #000000;">&gt;().Object, mock.Object,</span></li>
+<li>                            <span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">Mock</span><span style="background: #ffffff; color: #000000;">&lt;</span><span style="background: #ffffff; color: #2b91af;">IService3</span><span style="background: #ffffff; color: #000000;">&gt;().Object);</span></li>
+</ol>
+</div>
+</div>
+</div>
+<p>&nbsp;</p>
+<p>This approach is completely fine, but it can be a time killer with a lot of “empty” mocks. Therefore I recently discovered that AutoFixture has an <a href="http://blog.ploeh.dk/2010/08/19/AutoFixtureAsAnAutomockingContainer.aspx">extension using Moq</a>. The way it works is that it uses Moq as a fallback mechanism, by relaying request for creating an abstraction to Moq. I can then refactor the above to the following:</p>
+<div id="scid:9ce6104f-a9aa-4a17-a79f-3a39532ebf7c:106b101f-0e38-4ceb-bd26-b17f4f10ef14" class="wlWriterEditableSmartContent" style="margin: 0px; display: inline; float: none; padding: 0px;">
+<div style="border: #000080 1px solid; color: #000; font-family: 'Courier New', Courier, Monospace; font-size: 10pt;">
+<div style="background: #ddd; max-height: 300px; overflow: auto;">
+<ol style="background: #ffffff; margin: 0 0 0 2em; padding: 0 0 0 5px;" start="1">
+<li><span style="background: #ffffff; color: #0000ff;">var</span><span style="background: #ffffff; color: #000000;"> fixture = </span><span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">Fixture</span><span style="background: #ffffff; color: #000000;">().Customize(</span><span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">AutoMoqCustomization</span><span style="background: #ffffff; color: #000000;">());</span></li>
+<li style="background: #f3f3f3;"><span style="background: #ffffff; color: #0000ff;">var</span><span style="background: #ffffff; color: #000000;"> mock = _fixture.Freeze&lt;</span><span style="background: #ffffff; color: #2b91af;">Mock</span><span style="background: #ffffff; color: #000000;">&lt;</span><span style="background: #ffffff; color: #2b91af;">IService2</span><span style="background: #ffffff; color: #000000;">&gt;&gt;();</span></li>
+<li><span style="background: #ffffff; color: #000000;">mock.Setup(service2 =&gt; service2.DoStuff()).Returns(</span><span style="background: #ffffff; color: #a31515;">"foo"</span><span style="background: #ffffff; color: #000000;">);</span></li>
+<li style="background: #f3f3f3;"><span style="background: #ffffff; color: #0000ff;">var</span><span style="background: #ffffff; color: #000000;"> sut = _fixture.CreateAnonymous&lt;</span><span style="background: #ffffff; color: #2b91af;">ServiceToTest</span><span style="background: #ffffff; color: #000000;">&gt;();</span></li>
+</ol>
+</div>
+</div>
+</div>
+<p>&nbsp;</p>
+<p>Cool, right? In line 1, a new customization is added. This extension is part of AutoMoq extension, available via a <a href="https://nuget.org/packages/AutoMoq/">Nuget</a>. As usual, AutoFixture creates an instance of the ServiceToTest, bet ServiceToTest takes three dependencies through constructor injection. AutoFixture cannot figure out to create instances of these, they are relayed to Moq. Since I need to set expectations on IService2, I can freeze a variable in the AutoFixture framework, and bypass default behavior for creating instances.</p>
+<p>This is a great extension to AutoFixture. combining the mocking features of Moq for supporting auto mocking is great. Since Moq was added, a number of other mocking frameworks has been, <a href="https://nuget.org/packages/AutoFixture.AutoFakeItEasy">AutoFakeItEasy</a>, <a href="https://nuget.org/packages/AutoFixture.AutoRhinoMocks">AutoRhinoMocks</a>, and <a href="https://nuget.org/packages/AutoFixture.AutoNSubstitute">AutoNSubstitute</a>.</p>
+<p>Oh, one more thing. Consider the following class:</p>
+<div id="scid:9ce6104f-a9aa-4a17-a79f-3a39532ebf7c:ddee8d69-e2a6-4937-8a01-95afdfddbd3b" class="wlWriterEditableSmartContent" style="margin: 0px; display: inline; float: none; padding: 0px;">
+<div style="border: #000080 1px solid; color: #000; font-family: 'Courier New', Courier, Monospace; font-size: 10pt;">
+<div style="background: #ddd; max-height: 300px; overflow: auto;">
+<ol style="background: #ffffff; margin: 0 0 0 2.5em; padding: 0 0 0 5px;" start="1">
+<li><span style="background: #ffffff; color: #0000ff;">public</span><span style="background: #ffffff; color: #0000ff;">class</span><span style="background: #ffffff; color: #2b91af;">MyParentClass</span></li>
+<li style="background: #f3f3f3;"><span style="background: #ffffff; color: #000000;">{</span></li>
+<li>    <span style="background: #ffffff; color: #0000ff;">public</span><span style="background: #ffffff; color: #0000ff;">string</span><span style="background: #ffffff; color: #000000;"> ParentName { </span><span style="background: #ffffff; color: #0000ff;">get</span><span style="background: #ffffff; color: #000000;">; </span><span style="background: #ffffff; color: #0000ff;">set</span><span style="background: #ffffff; color: #000000;">; }</span></li>
+<li style="background: #f3f3f3;">    <span style="background: #ffffff; color: #0000ff;">public</span><span style="background: #ffffff; color: #2b91af;">List</span><span style="background: #ffffff; color: #000000;">&lt;</span><span style="background: #ffffff; color: #2b91af;">IMyChildClass</span><span style="background: #ffffff; color: #000000;">&gt; Children { </span><span style="background: #ffffff; color: #0000ff;">get</span><span style="background: #ffffff; color: #000000;">; </span><span style="background: #ffffff; color: #0000ff;">set</span><span style="background: #ffffff; color: #000000;">; }</span></li>
+<li><span style="background: #ffffff; color: #000000;">}</span></li>
+<li style="background: #f3f3f3;"></li>
+<li><span style="background: #ffffff; color: #0000ff;">public</span><span style="background: #ffffff; color: #0000ff;">interface</span><span style="background: #ffffff; color: #2b91af;">IMyChildClass</span></li>
+<li style="background: #f3f3f3;"><span style="background: #ffffff; color: #000000;">{</span></li>
+<li><span style="background: #ffffff; color: #000000;">}</span></li>
+</ol>
+</div>
+</div>
+</div>
+<p>&nbsp;</p>
+<p>Okay, I described such class above, the difference is that it is now a list of interfaces. Remember, lists of concrete instances can be created by using the MultipleCustomizations, and interfaces can be created by using the AutoMoqCustomization, so we need to combine the two. This is done by CompositeCustomization:</p>
+<div id="scid:9ce6104f-a9aa-4a17-a79f-3a39532ebf7c:41d1f041-955f-49fd-974c-daed50969147" class="wlWriterEditableSmartContent" style="margin: 0px; display: inline; float: none; padding: 0px;">
+<div style="border: #000080 1px solid; color: #000; font-family: 'Courier New', Courier, Monospace; font-size: 10pt;">
+<div style="background: #ddd; max-height: 300px; overflow: auto;">
+<ol style="background: #ffffff; margin: 0 0 0 2em; padding: 0 0 0 5px;" start="1">
+<li><span style="background: #ffffff; color: #0000ff;">var</span><span style="background: #ffffff; color: #000000;"> fixture = </span><span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">Fixture</span><span style="background: #ffffff; color: #000000;">().Customize(</span><span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">CompositeCustomization</span><span style="background: #ffffff; color: #000000;">(</span><span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">MultipleCustomization</span><span style="background: #ffffff; color: #000000;">(), </span><span style="background: #ffffff; color: #0000ff;">new</span><span style="background: #ffffff; color: #2b91af;">AutoMoqCustomization</span><span style="background: #ffffff; color: #000000;">()));</span></li>
+<li style="background: #f3f3f3;"><span style="background: #ffffff; color: #0000ff;">var</span><span style="background: #ffffff; color: #000000;"> dummyClass = _fixture.CreateAnonymous&lt;</span><span style="background: #ffffff; color: #2b91af;">MyChildClass</span><span style="background: #ffffff; color: #000000;">&gt;();</span></li>
+</ol>
+</div>
+</div>
+</div>
+<p>&nbsp;</p>
+<p>This customization combines the two, and creates an instance of MyParentClass, with a list of three MyChildClass instances. Sooo, neat.</p>
+<p>That’s it for now. Throw a comment at me, and tell me your AutoFixture niftiest.</p>

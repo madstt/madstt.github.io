@@ -1,0 +1,42 @@
+---
+layout: post
+title: Dependency Injection and Me
+date: 2012-10-15 19:25:11.000000000 +02:00
+categories:
+- Dependency Injection
+tags: []
+status: publish
+type: post
+published: true
+meta: {}
+author:
+  login: admin
+  email: mads.toustrup@gmail.com
+  display_name: admin
+  first_name: ''
+  last_name: ''
+---
+<p>From time to time I look into my toolbox to see which tools I use the most. With almost 8 years of software development experience, I’ve learned that constantly sharpening the knives of your toolbox and adding new tools, is what makes you a great developer. If I were to highlight one of my favorite tools in the box, the tool that just makes me smile every time I use it, it must be dependency injection (DI).</p>
+<p>I’ve used DI a long time before I knew it was called dependency injection. I was introduced to these principles in <a href="http://en.wikipedia.org/wiki/Behavior-driven_development">Behavior-Driven Development</a> course around 5 years ago. Always code against an interface and the <a href="http://en.wikipedia.org/wiki/Open/closed_principle">Open/Close principle</a>. I started using the techniques and soon realized that they were quite useful, if not mandatory, when unit testing. The loose coupling between components and layers, have given me numerous architectural advantages over years. Even when doing embedded development on Linux using C++, I instinctively grabbed for DI in my toolbox. I had found tricks to handle transient dependencies, and how to share dependencies among several consumers. I usually related my home-brewed DI techniques with the <a href="http://en.wikipedia.org/wiki/Strategy_pattern">strategy pattern</a> and the <a href="http://en.wikipedia.org/wiki/Decorator_pattern">decorator pattern</a>.</p>
+<p>2 years ago, I left the dark side of Linux and C++ to dedicate my life to .Net and C#, this is where I realized that this loose coupling technique I had used for the past 3 years, was actually termed dependency injection. I then started using DI Containers over my own home-made DI techniques. </p>
+<h2>DI Container Basics</h2>
+<p>So, by laying off my home-brewed DI techniques, I’ve found a tool that enhance my productivity, and supplying me with an arsenal of great features. </p>
+<p>DI containers are about two things, R&amp;R. No, not rest and relaxation. I’m talking about registration and resolving. These are the acts of storing a list of types and later retrieving instances of them at will.
+<p>The DI container is the tool that turns DI into architectural patterns that lets you satisfy a type’s dependencies easily and automatically. It is a repository that typically associates interfaces with concrete types. DI containers all work in a very similar fashion. At the beginning of an application’s execution-cycle, you need to register associations of concrete types to the interfaces that they implement.
+<p>Basically all DI containers are based on three dimensions, object composition, object lifetime, and interception. </p>
+<h3>Object Composition</h3>
+<p>Object composition is the technique used for wiring up the dependencies to its consumers. This is usually done in the composition root of the application. The composition varies from application type to application type, e.g.. in a console application, the Main() method would be the composition root, the place where all dependencies are wired up to their consumers. </p>
+<p>The composition can be configured using different techniques. Configuring by using XML is widely used, and supported by all major DI containers. When using XML, all dependencies are wired to their consumers using an XML file. This is great for late binding. An alternative is to write the bindings explicitly in code, it uses the same discrete bindings as in XML configuration, its just in code. An increasingly popular architectural model is the concept of convention over configuration. Instead of writing and maintaining a lot of configuration code, you agree on conventions.</p>
+<p>Four different patterns outlines the object composition catalog, constructor injection, property injection, method injection, and ambient context. </p>
+<h3>Object Lifetime</h3>
+<p>This dimension of DI manages the lifetime of the injected dependencies. Some dependencies might be disposable by using the IDisposable pattern, others might be shared between multiple consumers, some might be pooled, etc. </p>
+<p>When wiring up the dependencies with their consumers, no matter which composition technique, a certain lifestyle should be considered. Is it a dependency that is thread-safe and can be shared between multiple consumers, then choose singleton lifestyle. If its not thread-safe, then consider using a transient lifestyle. Is it an out-of-process dependency, then it might be a good idea to consider an object pool. </p>
+<h3></h3>
+<h3>Interception</h3>
+<p>Interception is the idea of intercepting the call between the consumer and a service and execute some before or after the actual service is invoked. This is a great feature for cross-cutting concerns, such as security, auditing, logging, exception handling, etc. The best analogy to interception is the <a href="http://en.wikipedia.org/wiki/Decorator_pattern">decorator pattern</a>. </p>
+<p>Implementing interception using aspect attributes or relying entirely on decorators, you will find yourself violating the <a href="http://en.wikipedia.org/wiki/Don't_repeat_yourself">DRY principle</a>. DI containers features dynamic interception by emitting new types at runtime.</p>
+<h2>Final words…</h2>
+<p>DI containers are awesome. Use them, use them, use them. You wont regret this, DI is a great tool to have in your toolbox. They provide so much architectural power, they often exceeds the your initial expectations.</p>
+<p>I have extensive experience using <a href="http://www.ninject.org/">NInject</a>, and less experience using <a href="http://www.castleproject.org/">Castle Windsor</a>, but no matter which DI container you choose, you won’t regret. There might be some initial learning curve, but you get paid back multiple times, I promise.</p>
+<p>For further reading I’ll highly recommend <a href="http://blog.ploeh.dk/">Mark Seemann</a>’s ‘<em><a href="http://affiliate.manning.com/idevaffiliate.php?id=1150_236">Dependency Injection in .Net</a></em>’. It’s a really great read. I’ve read several chapters here and there, and is currently reading it from start to end. </p>
+<p>So, what’s your experience with DI? Throw me a comment…</p></p>

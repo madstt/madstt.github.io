@@ -1,0 +1,34 @@
+---
+layout: post
+title: Interoperating with Flash
+date: 2009-06-04 09:26:36.000000000 +02:00
+categories:
+- Coding
+- Flash
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+author:
+  login: admin
+  email: mads.toustrup@gmail.com
+  display_name: admin
+  first_name: ''
+  last_name: ''
+---
+<p>I've never seen Flash developers as 'real' developers, they don't write real code. They usually come from a design background and always seems focused on transitions and blending rather than aggragations and inheritance. From time to time you have to face the unknown and step into new territories. I recently had to make a tiny step into the Flash territory. I was given the task to create a client player that can stream an <a href="http://www.adobe.com/livedocs/flashmediaserver/3.0/docs/help.html?content=01_overview_basics_13.html">RTMPe</a> stream. The RTMPe is an encrypted version of the RTMP protocol from Adobe, orginally Macromedia. This protocol is used by the <a href="http://www.adobe.com/products/flashmediaserver/pdfs/FlashMediaServer3_WhitePaper_ue.pdf">Flash Media Server (.pdf)</a>. On the client side you choose from the different Adobe Flash clients, Adobe Flash Player, Adobe AIR, Adobe Media Player, basically anything that can play an .swf file. So your faced with the challenge of interoperating with Flash.</p>
+<p>This is a two side development cycle, so lets start out on the Flash side.</p>
+<p>Flash side:</p>
+<p>I was recommended a open-source IDE called <a href="http://www.flashdevelop.org">FlashDevelop</a>. I quickly realised that it has a lot in common with Visual Studio, which is my preferred IDE. Flash is written in a language called ActionScript. ActionScript has some elements in common with VB. VB enthusiasts will probably disagree... With some help from the Adobe Developer Forum I could easily put together a working .swf file. The main components used is the NetConnection and NetStream. To be able to interact with the flash code, your have to set up some callbacks to the external interface:</p>
+<p>ExternalInterface.addCallback("SetTrack", SetTrack);<br />
+ExternalInterface.addCallback("TogglePause", TogglePause);<br />
+ExternalInterface.addCallback("Stop", StopPlayback);</p>
+<p>The first parameter is name of the method on which the C# code should call. The second parameter is the function pointer, or delegate in C#, to which ActionScript method should be invoked when, in this case, SetTrack is called. SetTrack receives an URL from the C# code and starts streaming.</p>
+<p>C# side:</p>
+<p>The first step is to host the Flash Player ActiveX component in the application. This can be done by choosing Add Reference in the context menu of your project or by adding it to your Toolbox by choosing Choose Items in the context menu of the Toolbox.</p>
+<p>Then you set the Movie property on the Flash Player: axShockwaveFlash1.Movie = @"xxx.swf"; Now you are able to invoke the methods on the .swf file. This is done by using the CallFunction method on the Flash Player. These calls are done through XML:</p>
+<p>axShockwaveFlash1.CallFunction("&lt;invoke name=\"SetTrack\" returnENGINE=\"xml\"&gt; &lt;arguments&gt;&lt;string&gt;" + url + "&lt;/string&gt;&lt;/arguments&gt;&lt;/invoke&gt;");</p>
+<p>This call sets the new URL in Flash and starts the stream. Likewise you can pause the stream and make other control calls to Flash Player. One thing that irritated me, was the ability to stop the stream. There is no command for that. So I closes the stream everytime I switch track.</p>
+<p>As you can see from this walk-through it is very easy to interoperate with Flash, and writing code in ActionScript seems reasonably easy. Although, I have heard that larger projects in ActionScript can make life a hell.</p>

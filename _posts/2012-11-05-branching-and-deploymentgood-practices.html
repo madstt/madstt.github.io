@@ -1,0 +1,30 @@
+---
+layout: post
+title: Branching and Deployment - Good Practices
+date: 2012-11-05 12:09:29.000000000 +01:00
+categories:
+- Branching
+tags: []
+status: publish
+type: post
+published: true
+meta: {}
+author:
+  login: admin
+  email: mads.toustrup@gmail.com
+  display_name: admin
+  first_name: ''
+  last_name: ''
+---
+<h2>Feature Branches</h2>
+<p>Branching is a vital tool for all developers, working alone or in teams. The basic idea of <a href="http://martinfowler.com/bliki/FeatureBranch.html">feature branching</a> is that when you start work on a feature,&nbsp; you create a branch off of the repository and commit all the changes for the feature onto the branch and when your feature is code complete then merge the changes back.
+<p>The advantage in using feature branches is that your main line (you might call main line ‘master’, ‘trunk’ or ‘head’ depending on the version control system you use) is kept clear of uncompleted features or bug fixes, which enables you to release software at any time because you don’t have to wait for all the features and bug fixes being worked on to be completed.
+<p><a href="http://madstt.dk/wp-content/uploads/2012/11/clip_image001.png"><img style="background-image: none; border-bottom: 0px; border-left: 0px; padding-left: 0px; padding-right: 0px; display: block; float: none; margin-left: auto; border-top: 0px; margin-right: auto; border-right: 0px; padding-top: 0px" title="clip_image001" border="0" alt="clip_image001" src="assets/clip_image001_thumb.png" width="244" height="75" /></a>
+<p>If concurrent development on other branches are in progress, it is a good idea to keep in synch with the latest changes on trunk. Synching with trunk helps avoiding the 'big' merge at code complete.
+<p><a href="http://madstt.dk/wp-content/uploads/2012/11/clip_image002.png"><img style="background-image: none; border-bottom: 0px; border-left: 0px; padding-left: 0px; padding-right: 0px; display: block; float: none; margin-left: auto; border-top: 0px; margin-right: auto; border-right: 0px; padding-top: 0px" title="clip_image002" border="0" alt="clip_image002" src="assets/clip_image002_thumb.png" width="244" height="111" /></a><br />
+<h2>Test And Deployment Branches</h2>
+<p>The advantages mentioned above for feature branches, is also evident for test and deployment branches. We would like to isolate test and production versions from the continuous development made on trunk. </p>
+<p><img style="display: block; float: none; margin-left: auto; margin-right: auto" alt="Multiple release branches" src="assets/vcd_release.png" />&nbsp;</p>
+<p>Every time a version is released to production it is versioned on its own branch. Should there occur any issues or hot fixes to any releases, these are made on the release branch and changes are merged back into trunk. </p>
+<p>A test branch holds an isolated version that is currently being tested either by QA or business. Again, should there occur any smaller fixes, then these should be merged back into trunk. Larger changes, or feedback from business, should be put on a separate feature branch.</p>
+<p>A good practice is to release to production from the test branch, so that the version that has been tested and verified by either QA or business, is the one being released to production. This means, that when we need to deploy to production, we merge trunk into the test branch and, when the revision is verified, we create and version a release branch from the test branch. </p></p></p></p>
