@@ -11,7 +11,10 @@ twitter_username: madstt
 github_username:  madstt
 
 # Build settings
-markdown: kramdown
+markdown: redcarpet
 
-#Highlighter
+# Highlighter
 highlighter: rouge
+
+# Permalinks
+permalink: /:title/
