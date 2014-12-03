@@ -29,3 +29,38 @@ In the next slot, I attended [Christian Horsdal](https://twitter.com/chr_horsdal
 Later I had the pleasure of enjoying [Christian Dalager](https://twitter.com/dalager)'s talk on [Azure WebJobs](http://azure.microsoft.com/en-us/documentation/articles/web-sites-create-web-jobs/). I've never had any scenario for WebJobs, but they are pretty cool. So, basically you can write scripts in your favorite script language, although scriptcs is still missing, and make your Azure Website make use of it to do some background job. Christian demoed a small Twitter-like app for sending emotional tweets, or emotweets. He showed how the site would benefit from the use of WebJobs. I really like Christian's presentation, but informative and funny.
 
 ![Christian Dalager](https://pbs.twimg.com/media/B3Xb-fxCEAAXl1e.jpg:medium)
+
+The last session on the second day of Campus Days, was on web security. [Anders Skovsgaard](https://twitter.com/2600dk), the founder and kingpin behind [Hackavoid](https://www.hackavoid.com/), did a really awesome session on and about web security. Probably the best of the conference, so much take-away. He did a combine theory and practice session, where he show some of the most utilized web site hacker methods, both with examples of how to use them and how to prevent them. This is a very smart and bright guy, who has a lot experience in this field. He has done security work for both Google and Twitter. 
+
+On the third day, I stopped by [Christian Holm Diget](https://twitter.com/dotnetnerd)'s talk on patterns in single-page applications. I probably had other expectations to that talk, than what Christian really wanted to show. From the title and the abstract, I would have expected a talk on general patterns in single-page applications, but Christian showed us how AngularJS and other frameworks are composed, and that they share similarities. One of points, Christian emphasized was that, you, as a developer, should not be too religious about choice of framework, but rather focus on design principles and the domain. That's true. I would therefore have expected, a clean talk without any, or maybe very little, mentions of libraries and frameworks. As a former colleague, I can tell that Christian is a great developer, both on .Net and web, and can give us all a lesson on single-page applications, but I just had the wrong expectations to this talk.
+
+In my second session on the third day, I attended [Lasse Skytte Knudsen](https://twitter.com/azureteamlasse) in his talk about migrating from Azure Federation to Azure Elastic Scale. This talk really didn't get. I was probably not the target audience. It was one of those sessions slots, where it was difficult to pick a session.
+
+The ASP.NET vNext has really been buzzed and hyped recently, so it really made good sense to attend a talk about this topic. [Stig Irming-Pedersen](https://twitter.com/stigip) gave us a great introduction by showing off some of the most important aspects. This talk was indeed one of the highlights of the conference. I'm not going to use this post on explaining details about ASP.NET vNext, this can be read elsewhere, but I would use this space to credit Stig for a great talk.
+
+My last session of Campus Days 2014, was about coded UI tests and cloud-based load tests. I've previously used coded UI tests, and was rather pleased to see how much has progressed since then. [Peter Lindberg](https://twitter.com/peterlindbergdk) gave a brief introduction to the latest in coded UI test with Visual Studio. Showed a nice demo with manually recording test scenarios, progressed and showed how to automate them. Finally, maybe a bit overdue, but nonetheless very relevant, cloud-based load tests were used to load test the application with the same test scenario. These cloud-based load tests has very promising aspects. You can assign a number of virtual users, depending on your subscription, and make them use your application. Very clever.
+
+![Peter Lindberg](https://pbs.twimg.com/media/B3c9PQLCQAASPKr.jpg:medium)
+
+### Venue
+The [Cinemaxx](http://cinemaxx.dk/koebenhavn/) movie theater is a great venue for hosting a conference. Great audio, great seats and awesome displays. But, and there is usually a but. Why does a movie theater with 14 screens on three floors, only have toilets on the lower floor. The staffing was adequate and kind. All in all, the positives by far outnumbers the negatives with regard to the venue.      
+
+### Catering 
+Catering covers all kinds of food, beverages and snacks provided by the host or sponsors. And this is by far, my most critical point, it was bad. Compared to other Microsoft hosted conferences I've attended, the catering of Campus Days 2014 was particularly bad. On the first day, my session got delayed due to some technical issues, so all there was left was this: 
+
+![Turtle?](https://pbs.twimg.com/media/B3SPi8CCQAAENXo.jpg:medium)
+
+I've got a lot of replies on Twitter, asking what this is. And no, it is not a dead or squashed turtle. It should be something Paleo-thingy, with Portobello mushrooms acting as bread around some veggies and meat. I didn't taste it, so I'm willing to take the punches. But Microsoft, this is an IT conference, throw us some delicious sandwiches, and use the Paleo stuff in your own canteen.
+
+On the second day, there were sandwiches, and great sandwiches. But, on the third day, we were back to the experimental kitchen. I ended up getting two rolls in ricepaper with a tiny piece of salmon, and a proportionally large amount of salad. They were very dry and tasteless. An alternative was wraps with pulled pork. I was thrilled, but again, so terribly disappointed. The tortilla wrap was replaced with cabbage leaves. Now that is blasphemy. Again, were did the good sandwiches from day 2 go? Some times the good alternatives were lacking in stock.
+
+Breakfast was served in brown bags. Brown bags with a tiny piece of bread with a hard crust, some cheese, chocolate spread, and jam. The bread was nice and fresh, but why only a single piece. I got two bags, ending up with too much cheese and stuff, generating food-spill. And all garbage these brown bags generate was enormous.
+
+Also at the social event on Wednesday night, a 1920s themed event with jazz and poker tables. It was well themed, loved the jazz, the entertainment, and drinks, but again the food failed. We had Budweiser, bad beer, and badly timed according to the 1920s theme, but ok, I could live with that. There were other options like a variety of craft beers, wine and drinks. The food was steaks and burgers. Unfortunately, the steaks was very rare, and served only with a fork. Although chopped, but in very large chunks, it just made the experience so bad. The burgers was ok, to the extend that they were difficult to handle and very juice. One thing to note about the Campus Days conference, is that there was not enough seats for everyone, so many meals is eaten standing.
+
+### Round Up
+This really turned out to be a large blog post, but I think the speakers, of which sessions I attended, deserves some feedback. I know they've spend hours preparing their talks. And also Microsoft for hosting the conference, might need some feedback from the trenches.
+
+All in all a great event. The assembled group of speakers was great, although I could have wished for bigger speaker names which could have given the conference some international attendees as well.
+
+An advise on the catering, find different supplier that knows their audience and were supplies last.
