@@ -2,6 +2,7 @@ markdown: redcarpet
 encoding: "utf-8"
 highlighter: rouge
 permalink: /:title/
+excerpt_separator: ""
 rdiscount:
   extensions: [smart]
 exclude: [ Gemfile, Gemfile.lock, gems, _assets, bower_components ]
