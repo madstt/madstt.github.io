@@ -1,4 +1,5 @@
 markdown: redcarpet
+encoding: "utf-8"
 highlighter: rouge
 permalink: /:title/
 rdiscount:
