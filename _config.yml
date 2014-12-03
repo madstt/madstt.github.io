@@ -1,12 +1,12 @@
 markdown: redcarpet
-pygments: true
+highlighter: rouge
 permalink: /:title/
 rdiscount:
   extensions: [smart]
 exclude: [ Gemfile, Gemfile.lock, gems, _assets, bower_components ]
 title : Mads Tjørnelund Toustrup
 production_url : http://madstt.dk
-description: "I do software. "
+description: "I do software."
 disqus_shortname: madstt
 analytics: UA-56954212-1
 gauges: 546dea0c8bfdf7079101aa5a
@@ -15,3 +15,13 @@ author :
   github : madstt
   twitter : madstt
   email: mads@madstt.dk
+jekyll-archives:
+  enabled: ['all']
+  layout: 'layout'
+  permalink: /archive/
+  permalinks:
+    year: '/:year/'
+    month: '/:year/:month/'
+    day: '/:year/:month/:day/'
+    tag: '/tag/:name/'
+    category: '/category/:name/'

@@ -1,17 +1,3 @@
----
-<!--   enabled: ['all']
-  layout: 'layout'
-  permalink: /archive/
-  permalinks:
-    year: '/:year/'
-    month: '/:year/:month/'
-    day: '/:year/:month/:day/'
-    tag: '/tag/:name/'
-    category: '/category/:name/'
- -->---
-
-<div class="container" id="content">
-
 <h1>Archive of posts with {{ page.type }} '{{ page.title }}'</h1>
 <ul class="posts">
   {% for post in page.posts %}
@@ -21,5 +7,3 @@
     </li>
   {% endfor %}
 </ul>
-
-</div>

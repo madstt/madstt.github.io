@@ -1,0 +1,15 @@
+.imgright {  
+ float:right;  
+ margin-left:20px;  
+ }
+
+.imgleft {  
+ float:left;  
+margin-right:20px;  
+ }
+
+.imgcenter {  
+width:100%!important;  
+display:block!important;  
+text-align:center;  
+}
