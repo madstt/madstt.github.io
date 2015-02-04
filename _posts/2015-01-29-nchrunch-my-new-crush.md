@@ -4,7 +4,7 @@ title: NCrunch, My New Crush
 permalink: /:title/
 categories:
 - tools
-published: false
+published: true
 ---
 
 This blog post is not about falling in love, being in love or love life in general. We fall in love now and then. Some love relations lasts a single night, some last longer, and even some lasts a lifetime. We fall in love, split up, find each other again, split up again, find someone else, and it all starts over again. You can put your money on multiple horses at once, but it is not recommendable though. 
