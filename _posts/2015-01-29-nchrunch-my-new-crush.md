@@ -26,18 +26,18 @@ And there has. This is not a complete feature full description of NCrunch, but m
 ## Configuration
 You can download a 30-day trial, and get access to all features. I'd recommend this, for both first-timers and old lovers. The first time you start up Visual Studio after installing NCrunch, you're met with the configuration wizard. This is a brilliant piece of configuration. It lets your configure fine-grained details about how NCrunch should behave inside Visual Studio. Among other details, it lets you configure how to share the number of cores between NCrunch and Visual Studio.
 
-![](//..//images//nchrunch_wizard.PNG)
+![]({{ site.url }}//..//images//nchrunch_wizard.PNG)
 
 This is a huge improvement. There are other key performance optimizations you can do with the wizard, like the maximum number of processing threads, parallel test execution, etc. 
 
-![](//..//images//nchrunch_ignore.PNG)
+![]({{ site.url }}//..//images//nchrunch_ignore.PNG)
 
 The last configuration you should do, before sending NCrunch loose on your code, is to specify how NCrunch should act upon start. You can choose to either, run all tests, or disable all and then enable them manually. Depending on your application, you might consider going for the latter. Currently, I have NCrunch running on a solution with ~7000 unit tests, so it would stupid to make NCrunch run all tests every time I change a character. My advise is therefore, to optimize performance, disable NCrunch for all test, and then enable / disable depending on the system under test (SUT).
 
 ## Let's Go Testing
 Once configured, and enabled (`Ctrl+M, D`), you'll notice dots next to each line in your code. The dots are very important, and gives you immediate feedback about the testing state of each line. A white dot means that this line of code is not covered by any unit tests. Red means there is at least one failing test for that line. And, of course, a green dot indicate that all unit tests covering this line succeeds. A red cross indicates in which line a test is failing.
 
-![](//..//images//ncrunch_dots.PNG)
+![]({{ site.url }}//..//images//ncrunch_dots.PNG)
 
 As I use this tool, I find myself not doing things I used to. I rarely or never run the application. I never run use the unit test runner. I even rarely compile my code. Well, I do sometimes, but that's pretty much just old habits. The NCrunch build engine is much faster than the built-in. Tools like NCrunch changes the way you work to the better. This is efficient development.
 
@@ -51,14 +51,14 @@ If you wanna see the 'usual' full code coverage of your code base, this is possi
 ### Profiling
 If we switch over to your unit tests, you'll see the same dots as in your SUT. You'll see whether the test is successful and a red cross indicates where in the test it is failing. In contrast to the dots in the SUT, these dots can have varying colors. These dots has a ring, indicating a 'hot spot', which means that the test is slow. If you hover your mouse over the dot, you'll see how much time NCrunch took to execute that specific line. This is also a very useful feature. Instead of investing in an expensive profiling tool, NCrunch will give you this, inline in code.
 
-![](//..//images//ncrunch_profiling.PNG)
+![]({{ site.url }}//..//images//ncrunch_profiling.PNG)
 
 As it can be seen in the above, the code lines 761, 762, and 768 are 'hot spots' and have a significant execution time, while the lines 771 and 773, has less significant execution time.
 
 ### Risk And Progress Bar
 This is one little brilliant feature. The Risk and Progress bar (R&PB) keeps track of the overall status of how your coverage is and how you're doing overall, in one compact overview.
 
-![](//..//images//ncrunch_bar.PNG) (Credits to [NCrunch](http://www.ncrunch.net/))
+![]({{ site.url }}//..//images//ncrunch_bar.PNG) (Credits to [NCrunch](http://www.ncrunch.net/))
 
 The R&PB consists of two components, a numerical indicator and a risk projection. If there is any failing tests, the numerical indicator would show the number. If there isn't any failing tests, a risk percentage will indicate whether there might be tests that can fail given the current state of the solution. If it is a large solution with many long running tests, the risk percentage can indicate whether or not to make a commit to source control.
 
