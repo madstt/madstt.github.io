@@ -58,7 +58,7 @@ As it can be seen in the above, the code lines 761, 762, and 768 are 'hot spots'
 ### Risk And Progress Bar
 This is one little brilliant feature. The Risk and Progress bar (R&PB) keeps track of the overall status of how your coverage is and how you're doing overall, in one compact overview.
 
-![]({{ site.url }}//..//images//ncrunch_bar.PNG) (Credits to [NCrunch](http://www.ncrunch.net/))
+![]({{ site.url }}//..//images//ncrunch_bar.PNG)
 
 The R&PB consists of two components, a numerical indicator and a risk projection. If there is any failing tests, the numerical indicator would show the number. If there isn't any failing tests, a risk percentage will indicate whether there might be tests that can fail given the current state of the solution. If it is a large solution with many long running tests, the risk percentage can indicate whether or not to make a commit to source control.
 

@@ -27,3 +27,4 @@ jekyll-archives:
     day: '/:year/:month/:day/'
     tag: '/tag/:name/'
     category: '/category/:name/'
+url: 'http://madstt.dk'
