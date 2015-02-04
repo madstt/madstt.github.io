@@ -1,7 +1,7 @@
 ---
 layout: post
 title: NCrunch, My New Crush
-permalink: /:title/
+date: 2015-02-04
 categories:
 - tools
 published: true

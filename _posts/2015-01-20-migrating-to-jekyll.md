@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Migrating to Jekyll
-permalink: /:title/
+date: 2015-01-20
 categories:
 - blog
 published: true
