@@ -5,7 +5,7 @@ date: 2015-06-09
 categories:
 - scriptcs
 - scriptcs.rebus
-published: false
+published: true
 ---
 
 In the [latest release of scriptcs.rebus](http://madstt.dk/scriptcs-rebus-0-6-0/), it is possible to receive the log entries from a remote script execution process. On the client side you can define a number of log entry handlers, and specify at which log level they should receive the log entries.
