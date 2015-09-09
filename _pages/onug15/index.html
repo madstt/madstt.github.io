@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>Serilog and ElasticSearch</title>
+
+    <meta name="description" content="Serilog and ElasticSearch">
+    <meta name="author" content="Mads Tjørnelund Toustrup">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="css/reveal.min.css">
+    <link rel="stylesheet" href="css/theme/default.css" id="theme">
+
+    <!-- For syntax highlighting -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+    <link rel="stylesheet" type="text/css" href="css/local.css">
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+        document.write('<link rel="stylesheet" href="css/print/' + (window.location.search.match(/print-pdf/gi) ? 'pdf' : 'paper') + '.css" type="text/css" media="print">');
+    </script>
+
+    <!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+    <link rel="stylesheet" href="css/slide_styles.css">
+</head>
+
+<body>
+
+    <div class="reveal">
+
+        <!-- Any section element inside of this container is displayed as a slide -->
+        <div class="slides">
+            <section>
+                <h3>Serilog and ElasticSearch</h3>
+                <img style="border-style: none" src="resources\d60logo.png" width="250">
+                <h4>Mads Tjørnelund Toustrup</h4>
+                <h4>Senior R&D Developer</h4>
+                <h4>mtt@d60.dk</h4>
+                <h4>madstt.dk</h4>
+                <h4>@madstt</h4>
+                <h4>ONUG 08.09.2015</h4>
+
+                <aside class="notes">
+                    <ul>
+                        <li>
+                            Mange små applikationer og projekter
+                        </li>
+                        <li>
+                            log4net, NLog, logger.net, etc.                            
+                        </li>
+                        <li>
+                            Behov for noget centraliseret overvågning
+                        </li>
+                        <li>
+                            Mulighed for at kunne sælge en support løsning
+                        </li>
+                        <li> Stadig en beta løsning</li>
+                    </ul>
+                </aside>
+            </section>
+            <section>
+                <h3>basic setup</h3>
+                <ul>
+                    <li class="fragment">
+                        Ubuntu 14.4 VM - Azure hosted
+                    </li>
+                    <li class="fragment">
+                        ElasticSearch 1.4.4 with Kibana 3
+                    </li>
+                    <li class="fragment">
+                        nginx 1.7.11
+                    </li>
+                    <li class="fragment">
+                        application logs and iis log forwarding
+                    </li>
+                </ul>
+                <aside class="notes">
+                    <ul>
+                        <li>A3 instans, 4 cores, 7 GB memory</li>
+                        <li>nginx works as a proxy server</li>
+                        <li>applies basic authentication and SSL</li>
+                        <li>iis logs from both Azure and on-premise servers</li>
+                    </ul>
+                </aside>
+            </section>
+            <!-- 				<section>
+					<h2>my language journey</h2>
+					<ul>
+						<li class="fragment">Early 1990s: C64 BASIC</li>
+						<li class="fragment">Mid 1990s: Borland Delphi</li>
+						<li class="fragment">Late 1990s: Java</li>
+						<li class="fragment">Early 2000s: C++</li>
+						<li class="fragment">2005-2008: C# (ruby)</li>
+						<li class="fragment">2008-2010: C++ (python)</li>
+						<li class="fragment">2010-</li>
+					</ul>
+					<aside class="notes">
+							<li>
+								C# 1.2, 2.0 Nov 2005
+								<li>
+									no generics	
+								</li>
+								<li>
+									no static classes	
+								</li>	
+								<li>
+									no private setters
+								</li>
+								<li>
+									no iterators	
+								</li>
+							</li>
+					</aside>
+				</section>
+ -->
+            <section>
+
+                <section>
+                    <h3>application logs</h3>
+                    <small class="fragment">serilog helpers</small>
+
+                    <div class="fragment">
+                        <p>NuGet package...</p>
+                        <code><pre>install-package d60.SerilogHelpers -ProjectName MyApp</pre>                       </code>
+                        <div class="fragment">
+                            <p>initialize...</p>
+                            <code><pre>Logging.Initialize("myApp", "local");</pre></code>
+                        </div>
+
+                    </div>
+                    <aside class="notes">
+                        <li>
+                            til centraliseret konfiguration, gøres én gang
+                        </li>
+                        <li>
+                            alle klienter sætter en env og client property
+                        </li>
+                    </aside>
+                </section>
+                <section>
+                    <h3>Get It!</h3>
+
+                    <div class="fragment">
+                        <p>get a <code>static readonly ILogger</code> in each class that needs to log stuff</p>
+                    </div>
+                    <div class="fragment">
+                        <code><pre>
+    public class MyRequestHandler : IRequestHandler&lt;SomeRequest&gt;
+    {
+        static readonly ILogger Log = Logging.GetCurrentClassLogger();
+        
+        public Response Handle(SomeRequest request) {
+            Log.Info("Turning on something for {SomeId} now", 
+                    request.SomeId);
+
+            ActuallyDoIt(request.SomeId);
+
+            return Ok();
+        }
+
+        void ActuallyDoIt(int someId) { ... }
+    }</pre></code>
+                    </div>
+
+                    <aside class="notes">
+                        <li>
+                            tilføjes i enhver klasse som skal bruge logging
+                        </li>
+                    </aside>
+                </section>
+                <!--
+                <section>
+                    <h3>GetCurrentClassLogger()? Huh?</h3>
+                    <div class="fragment">
+                        <code><pre>
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public static ILogger GetCurrentClassLogger()
+    {
+        try
+        {
+            var stackFrame = new StackFrame(1);
+            var callingMethod = stackFrame.GetMethod();
+            var declaringType = callingMethod.DeclaringType;
+            return Log.Logger.ForContext(declaringType);
+        }
+        catch
+        {
+            return Log.Logger.ForContext(
+                Properties.SourceContextProperty, "Unknown");
+        }
+    }
+        </pre></code>
+                    </div>
+
+                </section>
+-->
+
+                <section>
+                    <h3>default enrichers</h3>
+                    <ul>
+                        <li>UsernameEnricher</li>
+                        <li>AzureWebInstanceEnricher</li>
+                        <li>MachineNameEnricher</li>
+                        <li>RequestOriginEnricher</li>
+                    </ul>
+
+                    <aside class="notes">
+                        <li>
+                            nuget pakken giver mulighed for at sætte centrale properties
+                        </li>
+                    </aside>
+
+                </section>
+                <section>
+                    <h3>configuration options</h3>
+                    <h4 class="fragment">extension methods</h4>
+                    <ul>
+                        <li class="fragment">EnableRollingFiles</li>
+                        <li class="fragment">EnableTraceLogging</li>
+                        <li class="fragment">EnableConsoleLogging</li>
+                        <li class="fragment">EnableErrorMails</li>
+                    </ul>
+                    <aside class="notes">
+                        <ul>
+                            <li>extension methods</li>
+                        </ul>
+                    </aside>
+                </section>
+                <section>
+                    <h3>configuration options</h3>
+                    <h4 class="fragment">modes</h4>
+                    <ul>
+                        <li class="fragment">ShipLogsToAggregator</li>
+                        <li class="fragment">ShipLogsToLocalAggregator</li>
+                        <li class="fragment">DoNotShipLogs</li>
+                    </ul>
+                    <aside class="notes">
+                        <ul>
+                            <li>ships to remote elasticsearch server</li>
+                            <li>ships to local elasticsearch server</li>
+                            <li>log shipping disabled</li>
+                        </ul>
+                    </aside>
+                </section>
+                <section>
+                    <h3>configuration example</h3>
+                    <div class="fragment">
+                        <code><pre>
+Logging.Initialize("myApp", AppSettings.Environment.ToString(),
+    password: "myPassword",
+    mode: AppSettings.Environment == Env.Local
+                ? Logging.Mode.DoNotShipLogs
+                : Logging.Mode.ShipLogsToAggregator,
+    configurationCustomizer: config =>
+    {
+        config.Enrich.With(new HttpRequestIdEnricher());
+        config.Enrich.With(new HttpRequestRawUrlEnricher());
+        config.Enrich.With(new CorrelationIdEnricher(() =>
+        {
+            ...
+            
+            return correlationId.ToString();
+        }));
+
+        if (AppSettings.Environment == Env.Local)
+        {
+            config.EnableTraceLogging();
+            config.EnableRollingFiles();
+        }
+        else
+        {
+            config.EnableErrorMails(...);
+        }
+    });
+
+                        </pre></code>
+                    </div>
+
+                </section>
+            </section>
+            <section>
+                <section>
+                    <h3>iis log forwarding</h3>
+                    <h4 class="fragment">currently two options:</h4>
+                    <ul>
+                        <li class="fragment">Azure iis log forwarding</li>
+                        <li class="fragment">on-premise iis log forwarding</li>
+                    </ul>
+                </section>
+                <section>
+                    <h3>Azure iis log forwarding</h3>
+                    <ol>
+                        <li class="fragment">azure web apps to azure storage</li>
+                        <li class="fragment">azure storage to elasticsearch</li>
+                    </ol>
+                    <aside class="notes">
+                        <ul>
+                            <li>Configure tab, Site Diagnostics, Web Server Logging og vælg Storage</li>
+                            <li>samme region og subscription</li>
+                            <li>kun nye log entries bliver sendt over</li>
+                            ---
+                            <li>bruger LogFlow til at processere log entries fra blob til elasticseach</li>
+                            <li>bruger timestamp fra log entryen</li>
+                            <li>har lavet vores egen implementation</li>
+                            <li>robust, gemmer state og håndtere race conditions</li>
+                            ---
+                            <li>kører i Azure ved at bruge WebJob</li>
+                            <li>AlwaysOn på WebJob i web app</li>
+
+                            <li>der er en blog post</li>
+                        </ul>
+                    </aside>
+                </section>
+                <section>
+                    <h3>on-premise iis log forwarding</h3>
+                    <ul>
+                        <li class="fragment">using LogFlow's built-in iis reader</li>
+                        <li class="fragment">attaching environment and application name</li>
+                        <li class="fragment">running as a Windows service</li>
+                    </ul>
+                </section>
+            </section>
+            <section>
+                <section>
+                    <h3>security</h3>
+                    <p class="fragment">first option</p>
+                    <div class="fragment">
+                        <img style="border-style: none" src="resources\shield-triad.png" width="300">
+                    </div>
+                    <p class="fragment">Pros:</p>
+                    <ul>
+                        <li class="fragment">easy to install</li>
+                        <li class="fragment">easy to configure</li>
+                        <li class="fragment">fits into the elasticsearch configuration</li>
+                        <li class="fragment">LDAP and Active Directory integration</li>
+                        <li class="fragment">ip filtering</li>
+                        <li class="fragment">role-based access control</li>
+                    </ul>
+                    <p class="fragment">Cons:</p>
+                    <ul>
+                        <li class="fragment">Pricey: €5920 per node per year</li>
+                        <li class="fragment">Bundle: €29600 for 10 node bundle (!)</li>
+                    </ul>
+                    <aside class="notes">
+                        <ul>
+                            <li>samme konfigurations fil</li>
+                            <li>installeres nemt via plugin install</li>
+                            <li>giver en masse andre fordele:</li>
+                            <li>marvel sense</li>
+                            <li>support med garanterede respons tider</li>
+                            <li>ved licens udløb kan man stadig få adgang, men uden cluster health, cluster stats og index stats</li>
+                        </ul>
+                    </aside>
+                </section>
+                <section>
+                    <h3>security</h3>
+                    <p class="fragment">actual choice</p>
+                    <div class="fragment">
+                        <img style="border-style: none" src="resources\nginx.png" width="300">
+                    </div>
+                    <p class="fragment">Pros:</p>
+                    <ul>
+                        <li class="fragment">free and open-sourced</li>
+                        <li class="fragment">proxy server, load balancer, http cache, etc.</li>
+                        <li class="fragment">Apache-like configuration</li>
+                        <li class="fragment">basic authentication</li>
+                        <li class="fragment">SSL</li>
+                        <li class="fragment">persistent http connections</li>
+                    </ul>
+                    <p class="fragment">Cons:</p>
+                    <ul>
+                        <li class="fragment">N/A</li>
+                    </ul>
+                </section>
+                <section>
+                    <h3>other nginx stuff</h3>
+                    <blockquote cite="http://wiki.nginx.org/Main">
+                        &ldquo;Apache is like Microsoft Word, it has a million options but you only need six. nginx does those six things, and it does five of them 50 times faster than Apache.&rdquo; -- Chris Lea
+                    </blockquote>
+                    <div class="fragment">
+                        <p>Stats:</p>
+                        <ul>
+                            <li>15.15% (132,443,391) share of all sites</li>
+                            <li>22.61% (226,105) share of the top million busiest sites</li>
+                        </ul>
+
+                        <small>Source: http://news.netcraft.com/archives/2015/08/13/august-2015-web-server-survey.html</small>
+                    </div>
+                </section>
+            </section>
+        </div>
+    </div>
+
+    <script src="lib/js/head.min.js"></script>
+    <script src="js/reveal.min.js"></script>
+
+    <script>
+        // Full list of configuration options available here:
+        // https://github.com/hakimel/reveal.js#configuration
+        Reveal.initialize({
+            controls: true,
+            progress: true,
+            history: true,
+            center: true,
+
+            theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+            transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+            // Parallax scrolling
+            // parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+            // parallaxBackgroundSize: '2100px 900px',
+
+            // Optional libraries used to extend on reveal.js
+            dependencies: [
+                {
+                    src: 'lib/js/classList.js',
+                    condition: function () {
+                        return !document.body.classList;
+                    }
+                },
+                {
+                    src: 'plugin/markdown/marked.js',
+                    condition: function () {
+                        return !!document.querySelector('[data-markdown]');
+                    }
+                },
+                {
+                    src: 'plugin/markdown/markdown.js',
+                    condition: function () {
+                        return !!document.querySelector('[data-markdown]');
+                    }
+                },
+                {
+                    src: 'plugin/highlight/highlight.js',
+                    async: true,
+                    callback: function () {
+                        hljs.initHighlightingOnLoad();
+                    }
+                },
+                {
+                    src: 'plugin/zoom-js/zoom.js',
+                    async: true,
+                    condition: function () {
+                        return !!document.body.classList;
+                    }
+                },
+                {
+                    src: 'plugin/notes/notes.js',
+                    async: true,
+                    condition: function () {
+                        return !!document.body.classList;
+                    }
+                }
+    ]
+        });
+    </script>
+
+</body>
+
+</html>

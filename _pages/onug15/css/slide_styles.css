@@ -1,0 +1,11 @@
+.frontPage .reveal .state-background {
+	background: rgba( 0, 0, 0, 0.5 );
+}
+
+.blue .reveal .state-background {
+	background: rgba(150, 30, 20, 0.2);
+}
+
+.green .reveal .state-background {
+	background: rgba(50, 120, 20, 0.2);
+}
