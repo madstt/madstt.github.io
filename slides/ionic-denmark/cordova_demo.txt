@@ -1,0 +1,20 @@
+Demos:
+Cordova
+
+Visual Studio template option available
+
+npm install -g cordova
+
+cordova -h
+
+cordova create myApp
+code .
+
+cordova platform add android
+ - show platform folder in VS Code
+
+cordova build android
+ - show build folder in VS Code
+
+cordova run android
+

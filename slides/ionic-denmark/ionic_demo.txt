@@ -1,0 +1,71 @@
+Demos:
+
+== Wanna build an app story
+
+play.ionic.io
+
+creator.ionic.io
+
+# Ionic CLI
+
+npm install -g ionic
+ionic -h
+
+ionic start myApp tabs
+ 
+ - default
+ 	- tabs
+ - template
+ 	- named
+ 	- CodePen
+ 	- GitHub
+ 	- local folder
+ 	- Creator
+ 	- Plunker
+
+cd myApp
+code .
+ - gulp file
+
+ionic serve
+ - change header and tabs
+
+ionic serve --lab
+
+ionic setup sass
+ - goto ionic.app.scss
+ - restart serve
+
+ - add button
+ 	- class="button button-calm"
+ 		- change button color
+ 	- ng-click="toLog()"
+
+== On a device story
+
+ionic platform add android
+ - show platform folder in VS Code
+
+ionic build android
+ - show build folder
+
+ionic run android
+
+ionic run android -l
+
+ - change button color
+
+ - remove cord and change color
+
+ - add 'c' for console logging
+
+== Testing by customer
+
+ionic upload --note "initial version"
+
+ - change colors
+
+ionic upload --note "changed colors by request"
+
+
+
