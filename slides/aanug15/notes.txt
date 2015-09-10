@@ -1,0 +1,479 @@
+1 - C#
+	- Talk on C# and Script
+	- Great language, very versatile...
+	- personal language journey
+
+	- C# 1.2, 2.0 Nov 2005
+		- no generics
+		- no static classes
+		- no private setters
+		- no iterators
+
+2 - heavy
+- feels sad
+- not the language, but the dev experience
+- play around, experiment
+- open VS, create a project, project type
+- automation, how many have done console apps?
+- might use the CSC compiler, basic stuff, but difficult for referencing dlls
+
+3 - low cal option
+- low cal option found in Ruby, Python, and NodeJS
+
+4 - stacks
+- interpreted languages
+- open text file
+- easy to get going
+- many have a REPL
+	- read-eval-print-loop
+	- run a console and issue commands
+	- great for experimenting
+
+	- demo node REPL
+		- node
+		- console.log('hello from node');
+			- the reason for the undefined is irrelevat
+			- due to the fact that console doesn't return anything, just writes out
+		- var a = 'hello from node';
+		- a
+
+5 - nodejs dev experience
+ - node core
+ - npm (node package modules) provides all the modules
+
+6 - what about c#
+ - does have a package manager
+ - like node, does not have to be installed into a global dir, but to specific projects
+ - nuget solves part of the problem
+ - what about authoring c#, wants to be able to use any text editor
+ - Roslyn:
+ 	- first CTP in 2011, released in 2014
+ 	- compiler-as-a-service
+ 	- analysis code, like R# and CodeRush
+ 	- library that can compile some C# code into a dll or memory
+ 	- removed the requirement for classes
+ 	- shipped as a Nuget package
+ 	- not require VS to use it
+ 	- any application can use Roslyn to compile C#
+ 	- add references, using the #r
+ 	- some differences, no async/await or dynamic, in current beta 1.0.0, but Tasks are there
+ 	- no namespaces
+ 		- loose script
+ 		- everything is compiled into a wrapper class, compiler magic
+ 		- all script classes get embedded into wrapper class, so no namespaces
+ 	- but you can reference dlls with namespaces
+ 	- rcsi.exe can compile scripts from a command line
+- missing the link between Roslyn and Nuget
+- Roslyn has no notion of package
+- another missing, Roslyn does not support multiple files, everything goes into a single file
+
+7 - what about c#
+- scriptcs brings the last mile of what Roslyn brings to the table
+
+8 - scriptcs
+- script Compiler Service
+- no requirement for xx
+- story
+	- internal project at MSFT by Glenn Block
+	- main coordinator and maintainer
+	- had a dinner with him couple a weeks ago
+	- spearheading nodejs development for Azure
+	- switching over to Azure Mobile Services, he missed the lightweight development
+		- C# experience for authoring services
+	- initial tweet
+		- https://twitter.com/jrusbatch/statuses/307338593997824002
+
+- installation
+	- Chocolatey
+		- show website
+	-svm
+
+9 - command line demo
+- command line tool
+	commands
+		- scriptcs -v
+		- scriptcs -help
+		- sublime_text start.csx (just a convention)
+			
+			- Console.WriteLine("hello from Scriptcs");
+				- Very similar to the Ruby or Node model
+				- did not define any class
+			
+			- public void SendMessage(string message) {
+				Console.WriteLine(message);
+			}
+				- order doesn't matter
+			
+			- SendMessage("hello from ScriptCS"); (before method)
+				- very loose, no class
+
+			- public class Messenger {
+				public void SendMessage(string message) {
+					Console.WriteLine(message);
+				}
+			}
+				- notice anything? Yes, text-highlighting
+				- ScriptCS plugin for Sublime
+				- can be installed using Sublime Package Manager ()
+
+			- var messenger = new Messenger();
+			- messenger.SendMessage("hello from ScriptcsS");
+
+			- display error
+				- in class name
+				- you still get the same errors as in VS
+
+			- #r "System.Data";
+				- #r is a Roslyn symbol
+				- no .dll, assuming it is coming from the GAC
+			- using System.Data;
+
+			- remove usings again
+
+			- arguments, often used in command line tools
+				- Env.ScriptArgs[0]
+				-- "Hello from ScriptCS"
+
+		- scripts could start to grow
+		- you might want to reuse scripts
+		- you can use #load
+
+			-copy Messenger class into seperate script
+			-#load "messenger.csx"
+
+		- it is recursive, other scripts can have other scripts and so forth
+		- if multiple scripts calls the same, it will reconcile and make sure it only points to the same script
+
+		-loglevel debug
+   
+   - Tooling
+   		- it's about being productive, so no need for large IDEs, GUIs
+   		- using Notepad? stop, go this way.
+   		- show ctrl+b in Sublime
+   		- show ctrl+shift+r in Atom
+   			- installed via apm
+   			- show apm help install
+
+10 - REPL
+- commands
+	- scriptcs
+
+	- Console.WriteLine("hello from scriptcs");
+
+	- var msg = "hello";
+	- Console.WriteLine(msg);
+
+	- multi line is supported
+		- * shows
+		- public class Foo {
+			public void Baa() {
+				Console.WriteLine("hello from Baa");
+			}
+		}
+		- doesn't evaluate until finished brace closes
+		- var foo = new Foo();
+		- foo.Baa();
+
+	- load from the REPL
+		- #load "messenger.csx"
+		- var messenger = new Messenger();
+		- messenger.SendMessage("hello from the REPL");
+
+	- to able to avoid compiling scripts over and over again
+		- use caching
+		- -cache
+		- create a .dll, and show how it is used together with -r
+
+	- repl commands
+		- :clear
+		- :cwd
+		- :install
+
+	- show SublimeREPL in Sublime
+
+11 - WPF
+	- scriptcs start.csx
+		- wpf calculator
+		- using viewmodel
+		- no project
+		- using bindings to loose load xaml
+	- show start.csx
+		- #r from GAC
+			- all the WPF references
+		- #load
+		- talk about application
+			- would expect in any standard WPF application
+		- new view model
+		- STA
+			- WPF needs to be launch in a separate thread
+		- some frameworks requires a lot of setup
+			- leads to my next topic
+	- show views.csx
+	- show utilities.csx
+		- Create a thread, set appartment
+		- STA
+	- show viewmodels.csx
+		- standard viewmodel
+	- show CalculatorView.xaml
+		- standard XAML, not script XAML
+
+12 - Debugging
+	- scripts are cool, but when apps get sofisticated, debugging is essential
+	- req:
+		- Visual Studio 2012 SDK
+		- Roslyn CTP
+
+	- open VS
+		- in VS you can actually open an .exe file
+		- Open Project -> scriptcs.exe
+
+		- into Properties 
+			- Arguments -> start.csx -debug
+			- Working Directory -> c:\scriptcs
+
+	- might seem a bit cumbersome for now, but it'll get better
+
+13 - using scriptcs
+	- so what did we learn?
+
+	- C# with some small hicks
+		- no namespaces
+		- due to the inner class that wraps the code using Roslyn	
+
+## Check time - break?
+
+14 - packages
+	- told you about how scriptcs closes the gap between Roslyn and Nuget
+	- how does this work?
+
+	- install command
+		- will use the nuget api
+		- nuget has its own Nuget packages, which Nuget is written in
+		- will call out to nuget.org
+
+	- demo
+		- scriptcs -install mongocsharpdriver
+		- can use the REPL to utilize a mongodb server
+			- you could imagine a scenario to use a script for uploading documents
+		- where do the package go
+			- into the packages folder
+		- packages.config is also created if no exists
+		
+		- if you need to restore
+			- command line
+				- rmdir /S packages
+				- scriptcs -install
+
+		- mongodb in REPL
+			- scriptcs
+			- dont have to put in #load or #r
+			- automatically get discovered and loaded
+
+			- using MongoDB.Bson;
+				- for using the Bson api
+
+			- var doc = new BsonDocument();
+			- doc
+
+			- could start connecting to a remote instance
+
+	- modules
+		- scriptcs is composed upon a number of services, components if you like
+		- extensibility
+		- demo
+			- install scriptcs.gist -g
+				- as NuGet package
+				- g means into global space, because it apply to scriptcs itself
+					- just like nodejs
+			- in the REPL
+				- scriptcs -M -repl
+				- :gist "someID"
+			- takes any files with .csx extension downloads to \gists folder
+			- subsequently will execute from disk
+
+			- cross-platform
+				- Mono compiler as a module
+				- scriptcs -M mono -repl
+				- remember that Roslyn does not support dynamic and async/await
+				- scriptcs dynamic.csx
+				- scriptcs dynamic.csx -M mono
+
+15 - scriptcs in action
+	- lets take step up the ladder and see more complex examples of ScriptCS in action
+	
+	- show off webapihost from scriptcs-samples
+
+	- webapihost
+	- scriptcs start.csx
+
+	- go to browser
+		- localhost:8080/api/test
+
+	- this is a webapi completely hosted within script
+	
+	- using webapi packages
+	- cat packages.config
+	- only SelfHost
+		- notice that none of the other packages are specified
+		- this is what scriptcs -install will do for you
+	- dir packages
+		- by installing SelfHost, scriptcs -install pulls in the rest
+
+	- open start.csx
+		- even though the references are there, we still needs the usings
+
+	- open webapiconfig.csx
+		- you still have to do some configuration
+		- routes
+		- since scriptcs compiles into memory, we need a custom type resolver
+
+	- open testcontroller.csx
+
+16 - not pretty in script land
+	- not everything is rainbows and unicorns
+	- like these usings
+		- great if you have VS to create them
+		- using other editors or the REPL, I might make a typo
+	- like the custom type resolver
+	- don't think about this in VS
+
+	- newing things up
+		- know the name, the parameters
+	- other boilerplate code
+		- setting routes etc.
+
+17 - script packs
+	- in node you can require a module
+		- this gives you object, with functions attached that leads wherever you need to go
+		- you dont need to know namespaces
+		- new up objects
+		- all i have to do is require
+		- no usings, because of javascript
+
+	- all i really care about in the webapi code
+		- show testcontroller.csx
+
+	- script packs makes apis much easier to consume from script
+	- wrap existing frameworks and provide nicer interaction
+
+	- they can inject using statements
+	- they can also give you an object to work with
+
+	- demo
+		- script packs are installed as packages
+			- scriptcs -install scriptcs.webapi
+			- scriptcs server.csx
+			- show off server.csx
+				- using the same testcontroller.csx
+
+		- since the script pack is itself a package it specifies all it requirements
+
+	- new api, not part of Roslyn
+	- Require<T>
+
+	- gives me time to focus on the code that i really like to write
+
+	- there is a many script packs already out there
+		- mention some
+
+	- another demo
+		- scriptcs -install scriptcs.nancy
+		- Require<NancyPack>().Get("/", _ => "Hello world").Host();
+			- show in browser, nancy server in one line of code
+			- you can use the -w to watch a script file
+			- try changing message
+			- try changing port to devil (.At(666))
+			- try changing to .At("http://localhost/test/")
+
+		- client
+			- nancy has content negotiation
+
+
+18 - script packs
+	- just reiterating
+
+19 - joining forces
+	- so far, what we've seen is scriptcs is this leanback scripting model
+	- some would call it hipster development
+	- it therefore makes sense to join forces with a hippie bus
+	- on shoulder of giants
+	- rebus is a very powerful and reliable service bus for .Net
+	- founded and coordinated by MHG
+
+20 - scriptcs-rebus
+	- piggybacking/leeching on his and his contributors effort
+		- Glenn Block's wife did the same observation, when Glenn proposed scriptcs
+		- one key benefits of OSS
+	- putting these two gems together
+	- available on scriptcs-contrib
+		- show github page
+
+	- install 0.5.0
+
+	- show msmq with string 
+		- show in snoop
+	- show msmq with a custom type
+		- create a message.csx
+		- use #load in both sender and receiver
+	- show multiple handlers
+		- try receiving both a Message and string
+	- show UseLogging()
+	- show UseMono
+
+	- show rabbitmq with string
+		- show in http://localhost:15672/#/ before receiving
+
+	-show azure service bus with string
+		- show Azure Portal before receiving
+
+	- show DC.Positions.TradeReceiver demo
+		- talk about domain script packs
+
+21 - hosting
+	- last topic
+	- scriptcs has a hosting layer
+	- allowing you to use scriptcs to execute scripts in a different environment
+	- a very most promising aspect of scriptcs
+
+	- launch GlimpseDemo
+		- install-package glimpse.scriptcs
+		- using Glimpse to execute scripts
+
+		- glimpse.csx
+			- var msg = "Hello from Glimpse";
+			- msg
+
+			- also access to the Glimpse ITabContext
+				- which you would normally use for building Glimpse plugins
+
+			- var glimpse = Require<GlimpsePack>().Context;
+			- var httpContext = glimpse.GetHttpContext();
+
+			- httpContext.Request.Url
+
+			- so this is basically an ad-hoc written Glimpse plugin
+
+	- launch Hosting.WebApi
+		- 
+
+	it's not magic, its scriptcs
+21 - applications
+ - ConfigR
+ 	- Write C# config files in C#
+ - Executify.com
+ 	- Execute C# snippets in the browser
+ - ScriptCS in Octopus
+ 	- use ScriptCS instead of PowerShell
+ - Bau
+ 	- build system powered by scriptcs
+ - CShell.net
+ 	- Like LinqPad for C#
+
+
+
+
+
+
+
+demos: 
+	- organize script files
