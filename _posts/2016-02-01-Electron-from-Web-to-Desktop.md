@@ -26,6 +26,7 @@ Now we need to install the `electron-prebuilt` package:
 ```bash
 > npm install electron-prebuilt --save-dev
 ```
+
 This will install the `electron-prebuilt` package and store this dependecy as a development dependency in the `packages.json`, we created above.
 
 Now go on and create a folder that will hold the application specific files:
@@ -33,6 +34,7 @@ Now go on and create a folder that will hold the application specific files:
 ```bash
 > mkdir app
 ``` 
+
 I've called the folder `app`. In this folder we once again run the `npm init` command, and answer the questions. Now we need to edit the `packages.json` file created. When you open the file in your favorite text editor it should look like this:
 ```json
 {
@@ -47,6 +49,7 @@ I've called the folder `app`. In this folder we once again run the `npm init` co
   "license": "ISC"
 }
 ```
+
 For my own convenience I change the `main` to `main.js`, so my `packages.json` will look like this:
 
 ```json
@@ -62,6 +65,7 @@ For my own convenience I change the `main` to `main.js`, so my `packages.json` w
   "license": "ISC"
 }
 ```
+
 Now create the `main.js` in the `app` folder. In this very trivial sample application the `main.js` will look like this:
 
 ```javascript
@@ -82,20 +86,22 @@ app.on('ready', function() {
    })
 });
 ```
+
 In the first line we require the `app`, which is our application. Next we require a `browser-window`. This is the actual Electron shell, which will host our application. The `mainWindow` variable will hold a reference to an instance of the `BrowserWindow`.
 
 Then we hook up our application by listening to the `ready` event. So, when the application is ready we create the `BrowserWindow` instance and sets its dimensions. Then we load some content into the `mainWindow` by using the `loadUrl` method.
 
 The `loadUrl` method can take anything basically. In this case we want to show a local `index.html`, but there is nothing that can stop you from host a website inside your Electron application. I could host and distribute this blog as a desktop application like this:
 
-```javascript
+```
 mainWindow.loadUrl('http://www.madstt.dk');
 ``` 
+
 The last line in my `main.js` is an event handler, which will release the reference to the `mainWindow` object upon the application is closed.
 
 We're almost ready to take this little beast for a spin. We need to create `index.html`:
 
-```html
+```
 <html>
     <head>
         <title>Hello from Electron!</title>
@@ -105,12 +111,14 @@ We're almost ready to take this little beast for a spin. We need to create `inde
     </body>
 </html>
 ```
+
 This is very simple.
 
 Now, to launch this application we move to the outer folder (the folder containing the app folder). Here we can run the following command:
 ```bash
 > electron app
 ```
+
 Now your first Electron application is airborne. That's was easy, right? In the following posts we'll extend this simple application with more advanced features. On the top of my mind, the next post will focus on setting up [gulp](http://gulpjs.com/) for building, running, packaging, and distributing the application. Other topics will be setting up AngularJS, crash reporting, distribution, automatic updating, debugging, etc.
 
 Throw me a comment for suggestions. 
