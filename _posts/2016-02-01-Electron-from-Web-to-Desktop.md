@@ -18,6 +18,7 @@ Once again, [npm](http://npm.org) is your friend. We create a folder in which we
 ```bash
 > mkdir electron-hello
 ```
+
 Then inside this folder we run `npm init`. You then have to answer some questions about application. This will create the `packages.json` file which contains some metadata about your application. This `packages.json` is mandatory in any Electron application.
 
 Now we need to install the `electron-prebuilt` package:
