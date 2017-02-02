@@ -7,7 +7,7 @@ categories:
 published: true
 ---
 
-> Squirrel is like ClickOnce, but works. 
+> Squirrel is like ClickOnce, but works.
 
 This intriguing thesis made me wanna know more. By coincidence, I got the opportunity to spend the last few days fiddling with [Squirrel](https://github.com/Squirrel/Squirrel.Windows). Squirrel is an install and update framework. It comes in a few flavours, for Mac, Windows, and iOS. In this post we'll focus on Squirrel.Windows, the Windows flavour.
 
